@@ -41,10 +41,10 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-$app->configureMonologUsing(function(Monolog\Logger $monolog) {
-  $filename = storage_path('logs/'.php_sapi_name().'.log');
-  $handler = new Monolog\Handler\RotatingFileHandler($filename,5);
-  $monolog->pushHandler($handler);
+$app->configureMonologUsing(function (Monolog\Logger $monolog) {
+    $filename = storage_path('logs/'.php_sapi_name().'.log');
+    $handler = new Monolog\Handler\RotatingFileHandler($filename, 5);
+    $monolog->pushHandler($handler);
 });
 /*
 |--------------------------------------------------------------------------

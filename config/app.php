@@ -247,7 +247,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         /* JWT */
-        'JWTAuth'   => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'Entrust' => Zizaco\Entrust\EntrustServiceProvider::class,
 

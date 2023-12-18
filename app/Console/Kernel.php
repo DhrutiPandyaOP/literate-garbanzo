@@ -2,11 +2,8 @@
 
 namespace App\Console;
 
-use App\Jobs\Job;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-
-
 
 class Kernel extends ConsoleKernel
 {
@@ -43,21 +40,20 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
         //$schedule->command('WarningMailSendToUser:command')->everyMinute();
-//        $schedule->command('WarningMailSendToUserV2')->hourly();
-//        $schedule->command('AccountDeletionMailSendToUser')->daily();
-//        $schedule->command('SendDeactiveUserReportFileToAdmin')->monthly();
+        //        $schedule->command('WarningMailSendToUserV2')->hourly();
+        //        $schedule->command('AccountDeletionMailSendToUser')->daily();
+        //        $schedule->command('SendDeactiveUserReportFileToAdmin')->monthly();
         //$schedule->command('ReminderMailSendToUser:command')->daily();
         //$schedule->command('AccountDeactivationMailSendToUser:command')->daily();
         //$schedule->command('WarningMailSendToUserForAccountDeletion:command')->daily();
 
-        $schedule->command('SubscriptionExpire:command')->dailyAt('3:30');//everyMinute();
+        $schedule->command('SubscriptionExpire:command')->dailyAt('3:30'); //everyMinute();
         $schedule->command('sendreportmail')->weekly()->mondays()->at('4:00');
         $schedule->command('sendNormalImageReportMail')->weekly()->mondays()->at('4:00');
         $schedule->command('DeleteGeneratedVideo:command')->dailyAt('00:30'); //6 AM Ind

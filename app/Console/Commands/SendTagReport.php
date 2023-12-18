@@ -20,59 +20,57 @@ Copyright 2018 - 2022 Optimumbrew Technology
 namespace App\Console\Commands;
 
 use App\Http\Controllers\ImageController;
-use Illuminate\Console\Command;
 use App\Mail\TagReportMail;
-use Response;
-use JWTAuth;
-use Exception;
-use Log;
 use Config;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Log;
+use Response;
 
 class SendTagReport extends Command
 {
-  /**
-   * The name and signature of the console command.
-   *
-   * @var string
-   */
-  protected $signature = 'sendreportmail';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'sendreportmail';
 
-  /**
-   * The console command description.
-   *
-   * @var string
-   */
-  protected $description = 'Send weekly search tag report mail to admin.';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Send weekly search tag report mail to admin.';
 
-  /**
-   * Create a new command instance.
-   *
-   * @return void
-   */
-  public function __construct()
-  {
-    parent::__construct();
-  }
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
-  /**
-   * Execute the console command.
-   *
-   * @return mixed
-   */
-  public function handle()
-  {
-    try{
-      $start_date = date("Y-m-d", strtotime("last week monday"));
-      $end_date = date("Y-m-d", strtotime("last week sunday"));
-//      $end_date = date("Y-m-d");
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        try {
+            $start_date = date('Y-m-d', strtotime('last week monday'));
+            $end_date = date('Y-m-d', strtotime('last week sunday'));
+            //      $end_date = date("Y-m-d");
 
-      $where ="DATE_FORMAT(tam.week_start_date, '%Y-%m-%d') >= '$start_date' AND
+            $where = "DATE_FORMAT(tam.week_start_date, '%Y-%m-%d') >= '$start_date' AND
                      DATE_FORMAT(tam.week_end_date, '%Y-%m-%d') <= '$end_date'";
 
-
-      $tags = DB::select('(SELECT
+            $tags = DB::select('(SELECT
                                     tam.id,
                                     tam.tag,
                                     tam.is_success,
@@ -131,20 +129,20 @@ class SendTagReport extends Command
                                     LIMIT 20)
                                 ORDER BY is_success,search_count DESC');
 
-      $admin_email= Config::get('constant.ADMIN_EMAIL_ID');
-      $sub_admin_email= Config::get('constant.SUB_ADMIN_EMAIL_ID');
-      $app_name = Config::get('constant.APP_HOST_NAME');
-      $data  = array("app_name" => $app_name,'start_date'=>$start_date,'end_date'=>$end_date,'tags'=>$tags);
+            $admin_email = Config::get('constant.ADMIN_EMAIL_ID');
+            $sub_admin_email = Config::get('constant.SUB_ADMIN_EMAIL_ID');
+            $app_name = Config::get('constant.APP_HOST_NAME');
+            $data = ['app_name' => $app_name, 'start_date' => $start_date, 'end_date' => $end_date, 'tags' => $tags];
 
-//      Log::info('mail report : ',['data'=>$data,'admin_email'=>$admin_email,'sub_admin_email'=>$sub_admin_email]);
-      // Mail::to("bhargav.optimumbrew@gmail.com")->send(new TagReportMail($data));
-      Mail::to($admin_email)
-        ->bcc($sub_admin_email)
-        ->send(new TagReportMail($data));
-    } catch (Exception $e) {
-      (new ImageController())->logs("SendTagReport command handle()",$e);
-//      Log::error("SendTagReport command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-      return Response::json(array('code' => 201, 'message' =>Config::get('constants.EXCEPTION_ERROR'). ' send search tag report', 'cause' => $e->getMessage(), 'data' => json_decode("{}")));
+            //      Log::info('mail report : ',['data'=>$data,'admin_email'=>$admin_email,'sub_admin_email'=>$sub_admin_email]);
+            // Mail::to("bhargav.optimumbrew@gmail.com")->send(new TagReportMail($data));
+            Mail::to($admin_email)
+                ->bcc($sub_admin_email)
+                ->send(new TagReportMail($data));
+        } catch (Exception $e) {
+            (new ImageController())->logs('SendTagReport command handle()', $e);
+            //      Log::error("SendTagReport command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            return Response::json(['code' => 201, 'message' => Config::get('constants.EXCEPTION_ERROR').' send search tag report', 'cause' => $e->getMessage(), 'data' => json_decode('{}')]);
+        }
     }
-  }
 }

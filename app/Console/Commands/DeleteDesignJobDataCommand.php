@@ -39,8 +39,8 @@ class DeleteDesignJobDataCommand extends Command
      */
     public function handle()
     {
-      // Delete the user data from the table
-      DB::delete('DELETE FROM design_template_jobs WHERE create_time < DATE_SUB(NOW(), INTERVAL 7 DAY)');
-      Log::info('DeleteDesignJobDataCommand.php : all data that are older then 7 days from design_template_job has been deleted');
+        // Delete the user data from the table
+        DB::delete('DELETE FROM design_template_jobs WHERE create_time < DATE_SUB(NOW(), INTERVAL 7 DAY)');
+        Log::info('DeleteDesignJobDataCommand.php : all data that are older then 7 days from design_template_job has been deleted');
     }
 }
