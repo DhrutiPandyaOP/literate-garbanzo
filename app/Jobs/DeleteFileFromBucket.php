@@ -3,12 +3,12 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\ImageController;
+use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Exception;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -17,7 +17,9 @@ class DeleteFileFromBucket implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $file_path;
+
     public $file_name;
+
     public $folder_name;
 
     /**
@@ -44,7 +46,7 @@ class DeleteFileFromBucket implements ShouldQueue
             if (config('constant.STORAGE') === 'S3_BUCKET') {
                 (new ImageController())->deleteObjectFromS3($this->file_name, $this->folder_name);
             } else {
-                (new ImageController())->deleteObjectFromLocal($this->file_name, './..' . $this->file_path);
+                (new ImageController())->deleteObjectFromLocal($this->file_name, './..'.$this->file_path);
             }
 
         } catch (Exception $e) {
@@ -58,12 +60,12 @@ class DeleteFileFromBucket implements ShouldQueue
             $template = 'simple';
             $email_id = config('constants.ADMIN_EMAIL_ID');
             $subject = 'Email failed';
-            $message_body = array(
+            $message_body = [
                 'message' => 'API Name = DeleteFileFromBucket <br> API Description = DeleteFileFromBucket job failed',
-                'user_name' => 'Admin'
-            );
+                'user_name' => 'Admin',
+            ];
 
-            $data = array('template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body);
+            $data = ['template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body];
 
             Mail::send($data['template'], $data, function ($message) use ($data) {
                 $message->to(config('constants.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);

@@ -2,12 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\ImageController;
 use App\Jobs\RunCommandAsRoot;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Response;
 
 class DatabaseBackup extends Command
 {
@@ -47,15 +45,15 @@ class DatabaseBackup extends Command
             $mysql_user = Config::get('database.connections.mysql.username');
             $mysql_password = Config::get('database.connections.mysql.password');
             $mysql_databse = Config::get('database.connections.mysql.database');
-            $db_file_name = $mysql_databse . '.sql';
-            $file_path = './..' . Config::get('constant.TEMP_DIRECTORY') . $db_file_name;
+            $db_file_name = $mysql_databse.'.sql';
+            $file_path = './..'.Config::get('constant.TEMP_DIRECTORY').$db_file_name;
 
             $cmd = "mysqldump -u $mysql_user -p'$mysql_password' $mysql_databse > $file_path 2>&1";
 
-            RunCommandAsRoot::dispatch($cmd, "DatabaseBackup Scheduler");
+            RunCommandAsRoot::dispatch($cmd, 'DatabaseBackup Scheduler');
 
         } catch (Exception $e) {
-            Log::error("DatabaseBackup command handle() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            Log::error('DatabaseBackup command handle() : ', ['Exception' => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 }

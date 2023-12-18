@@ -2,19 +2,20 @@
 
 namespace App\Jobs;
 
+use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class RunCommandAsRoot implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $cmd;
+
     public $api_name;
 
     /**
@@ -53,12 +54,12 @@ class RunCommandAsRoot implements ShouldQueue
         Log::error('RunCommandAsRoot.php failed()', ['failed_job_id' => 1]);
         $template = 'simple';
         $subject = 'Command failed';
-        $message_body = array(
-            'message' => 'PhotoADKing is unable to run command by admin <br> api_name = ' . $this->api_name,
-            'user_name' => 'Admin'
-        );
+        $message_body = [
+            'message' => 'PhotoADKing is unable to run command by admin <br> api_name = '.$this->api_name,
+            'user_name' => 'Admin',
+        ];
 
-        $data = array('template' => $template, 'subject' => $subject, 'message_body' => $message_body);
+        $data = ['template' => $template, 'subject' => $subject, 'message_body' => $message_body];
         Mail::send($data['template'], $data, function ($message) use ($data) {
             $message->to(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);
         });

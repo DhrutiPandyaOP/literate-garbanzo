@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Mail;
-use Config;
-use Log;
-use Exception;
 use App\Http\Controllers\ImageController;
+use Config;
+use Exception;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Log;
 
 class SetContentIdsInStaticPage extends Command
 {
@@ -61,12 +60,13 @@ class SetContentIdsInStaticPage extends Command
                                                 WHERE 
                                                     sp.is_active = ? AND
                                                     sp.content_type = ?
-                                                ORDER BY sp.update_time DESC',[1, Config::get('constant.IMAGE') ]);
+                                                ORDER BY sp.update_time DESC', [1, Config::get('constant.IMAGE')]);
 
-            foreach ($static_page_details AS $i => $static_page_detail){
+            foreach ($static_page_details as $i => $static_page_detail) {
 
-                if ($static_page_detail->content_ids != "" || $static_page_detail->content_ids != NULL) {
-                    Log::error('SetContentIdsInStaticPage : static page contain already content_id ',['content_ids' => $static_page_detail->content_ids, '$i' => $i]);
+                if ($static_page_detail->content_ids != '' || $static_page_detail->content_ids != null) {
+                    Log::error('SetContentIdsInStaticPage : static page contain already content_id ', ['content_ids' => $static_page_detail->content_ids, '$i' => $i]);
+
                     continue;
                 }
 
@@ -94,19 +94,20 @@ class SetContentIdsInStaticPage extends Command
                                                     cm.content_type = ?
                                                     ORDER BY cm.update_time DESC limit ?, ?', [$catalog_id, 4, $this->offset, $this->item_count]);
 
-                    $content_id_array = array();
-                    $search_category_array = array();
-                    foreach($template_list AS $id){
+                    $content_id_array = [];
+                    $search_category_array = [];
+                    foreach ($template_list as $id) {
                         array_push($content_id_array, $id->content_id);
-                        if($id->search_category != "" OR $id->search_category != NULL)
+                        if ($id->search_category != '' or $id->search_category != null) {
                             array_push($search_category_array, $id->search_category);
+                        }
                     }
-                    $this->content_ids = implode(',',$content_id_array);
-                    $this->search_category = implode(',',array_unique($search_category_array));
+                    $this->content_ids = implode(',', $content_id_array);
+                    $this->search_category = implode(',', array_unique($search_category_array));
                     Log::info('SetContentIdsInStaticPage : catalog_id : ', ['content_id' => $this->content_ids, 'catalog_id' => $catalog_id]);
 
                     DB::beginTransaction();
-                    DB::update('UPDATE static_page_master SET content_ids = ?, search_category = ? WHERE id = ?',[$this->content_ids, $this->search_category, $static_page_detail->static_page_id]);
+                    DB::update('UPDATE static_page_master SET content_ids = ?, search_category = ? WHERE id = ?', [$this->content_ids, $this->search_category, $static_page_detail->static_page_id]);
                     DB::commit();
 
                     $sub_page_count++;
@@ -126,25 +127,26 @@ class SetContentIdsInStaticPage extends Command
                                                       cm.catalog_id IN (SELECT catalog_id FROM sub_category_catalog WHERE sub_category_id = ?)
                                                 ORDER BY cm.update_time DESC limit ?, ?', [$sub_category_id, $this->offset, $this->item_count]);
 
-                    $content_id_array = array();
-                    $search_category_array = array();
-                    foreach($template_list AS $id){
+                    $content_id_array = [];
+                    $search_category_array = [];
+                    foreach ($template_list as $id) {
                         array_push($content_id_array, $id->content_id);
-                        if($id->search_category != "" OR $id->search_category != NULL)
+                        if ($id->search_category != '' or $id->search_category != null) {
                             array_push($search_category_array, $id->search_category);
+                        }
                     }
                     $this->content_ids = implode(',', $content_id_array);
-                    $this->search_category = implode(',',array_unique($search_category_array));
+                    $this->search_category = implode(',', array_unique($search_category_array));
                     Log::info('SetContentIdsInStaticPage : sub_category_id', ['content_id' => $this->content_ids, 'sub_category_id' => $sub_category_id]);
 
                     DB::beginTransaction();
-                    DB::update('UPDATE static_page_master SET content_ids = ?, search_category = ?  WHERE id = ?',[$this->content_ids, $this->search_category, $static_page_detail->static_page_id]);
+                    DB::update('UPDATE static_page_master SET content_ids = ?, search_category = ?  WHERE id = ?', [$this->content_ids, $this->search_category, $static_page_detail->static_page_id]);
                     DB::commit();
 
                     $main_page_count++;
                 }
 
-                if(!$this->content_ids){
+                if (! $this->content_ids) {
 
                     Log::error('SetContentIdsInStaticPage : content_lis is empty.');
 
@@ -162,28 +164,29 @@ class SetContentIdsInStaticPage extends Command
                                                       cm.content_type = 4
                                                   ORDER BY cm.update_time DESC limit ?, ?', [$this->offset, $this->item_count]);
 
-                    $content_id_array = array();
-                    $search_category_array = array();
-                    foreach($template_list AS $id){
+                    $content_id_array = [];
+                    $search_category_array = [];
+                    foreach ($template_list as $id) {
                         array_push($content_id_array, $id->content_id);
-                        if($id->search_category != "" OR $id->search_category != NULL)
+                        if ($id->search_category != '' or $id->search_category != null) {
                             array_push($search_category_array, $id->search_category);
+                        }
                     }
                     $this->content_ids = implode(',', $content_id_array);
-                    $this->search_category = implode(',',array_unique($search_category_array));
+                    $this->search_category = implode(',', array_unique($search_category_array));
                     Log::info('SetContentIdsInStaticPage empty : ', ['content_id' => $this->content_ids, 'sub_category_id' => $sub_category_id, 'catalog_id' => $catalog_id]);
 
                     DB::beginTransaction();
-                    DB::update('UPDATE static_page_master SET content_ids = ?, search_category = ? WHERE id = ?',[$this->content_ids, $this->search_category, $static_page_detail->static_page_id]);
+                    DB::update('UPDATE static_page_master SET content_ids = ?, search_category = ? WHERE id = ?', [$this->content_ids, $this->search_category, $static_page_detail->static_page_id]);
                     DB::commit();
 
                 }
             }
 
-            Log::debug("SetContentIdsInStaticPage : ",['sub_page_count' => $sub_page_count, 'main_page_count' => $main_page_count]);
+            Log::debug('SetContentIdsInStaticPage : ', ['sub_page_count' => $sub_page_count, 'main_page_count' => $main_page_count]);
 
         } catch (Exception $e) {
-            (new ImageController())->logs("SetContentIdsInStaticPage",$e);
+            (new ImageController())->logs('SetContentIdsInStaticPage', $e);
             //Log::error("SetContentIdsInStaticPage : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }

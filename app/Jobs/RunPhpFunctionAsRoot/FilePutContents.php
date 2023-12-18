@@ -2,20 +2,22 @@
 
 namespace App\Jobs\RunPhpFunctionAsRoot;
 
+use Exception;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class FilePutContents implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $file_path;
+
     public $file_contents;
+
     public $api_name;
 
     /**
@@ -55,12 +57,12 @@ class FilePutContents implements ShouldQueue
         Log::error('FilePutContents.php failed()');
         $template = 'simple';
         $subject = 'Email failed';
-        $message_body = array(
+        $message_body = [
             'message' => 'PhotoADKing is unable to run FilePutContents job by admin',
-            'user_name' => 'Admin'
-        );
+            'user_name' => 'Admin',
+        ];
 
-        $data = array('template' => $template, 'subject' => $subject, 'message_body' => $message_body);
+        $data = ['template' => $template, 'subject' => $subject, 'message_body' => $message_body];
         Mail::send($data['template'], $data, function ($message) use ($data) {
             $message->to(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
             $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);

@@ -3,11 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\ImageController;
-use Illuminate\Console\Command;
-use Log;
 use App\Jobs\ToActivatePayPalSubscriptionJob;
 use Exception;
-
+use Illuminate\Console\Command;
+use Log;
 
 class ToActivatePayPalSubscriptions extends Command
 {
@@ -45,8 +44,8 @@ class ToActivatePayPalSubscriptions extends Command
         try {
             dispatch(new ToActivatePayPalSubscriptionJob());
         } catch (Exception $e) {
-           (new ImageController())->logs("ToActivatePayPalSubscriptions",$e);
-//            Log::error("ToActivatePayPalSubscriptions.php() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('ToActivatePayPalSubscriptions', $e);
+            //            Log::error("ToActivatePayPalSubscriptions.php() : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 }

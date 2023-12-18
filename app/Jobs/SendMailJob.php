@@ -2,21 +2,17 @@
 
 namespace App\Jobs;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Jobs\Job;
-use Mail;
-use Log;
-use DB;
 use Config;
+use DB;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Log;
+use Mail;
 
 class SendMailJob extends Job implements ShouldQueue
 {
-
     use InteractsWithQueue, SerializesModels;
-
 
     protected $user_id;
 
@@ -31,7 +27,6 @@ class SendMailJob extends Job implements ShouldQueue
     protected $api_name;
 
     protected $api_description;
-
 
     public function __construct($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description)
     {
@@ -53,22 +48,21 @@ class SendMailJob extends Job implements ShouldQueue
         $message_body = $this->message_body;
         $api_name = $this->api_name;
         $api_description = $this->api_description;
-        $data = array('template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body);
+        $data = ['template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body];
 
-        if(Config::get('constant.IS_MAIL_DEBUG_PROCESS_ENABLE')){
+        if (Config::get('constant.IS_MAIL_DEBUG_PROCESS_ENABLE')) {
 
             Mail::send($data['template'], $data, function ($message) use ($data) {
                 $message->getHeaders()->addTextHeader('X-SES-CONFIGURATION-SET', Config::get('constant.MAIL_X_SES_CONFIGURATION_SET_HEADER'));
                 $message->to($data['email'])->subject($data['subject']);
             });
-        }else{
+        } else {
 
             Mail::send($data['template'], $data, function ($message) use ($data) {
                 $message->to($data['email'])->subject($data['subject']);
             });
         }
     }
-
 
     public function failed()
     {
@@ -83,7 +77,7 @@ class SendMailJob extends Job implements ShouldQueue
         if (count($failed_job_id_result) > 0) {
 
             $failed_job_id = $failed_job_id_result[0]->max_id;
-            if ($failed_job_id == NULL) {
+            if ($failed_job_id == null) {
                 $failed_job_id = 1;
             }
 
@@ -99,12 +93,12 @@ class SendMailJob extends Job implements ShouldQueue
             $template = 'simple';
             $email_id = Config::get('constant.SUB_ADMIN_EMAIL_ID');
             $subject = 'Email failed';
-            $message_body = array(
-                'message' => 'Failed Job Id = ' . $failed_job_id . '<br>' . 'User Id = ' . $user_id . '<br>' . 'API Name = ' . $api_name . '<br>' . 'API Description = ' . $api_description,
-                'user_name' => 'Admin'
-            );
+            $message_body = [
+                'message' => 'Failed Job Id = '.$failed_job_id.'<br>'.'User Id = '.$user_id.'<br>'.'API Name = '.$api_name.'<br>'.'API Description = '.$api_description,
+                'user_name' => 'Admin',
+            ];
             //$message_body = 'Failed Job Id = ' . $failed_job_id . '<br>' . 'User Id = ' . $user_id . '<br>' . 'API Name = ' . $api_name . '<br>' . 'API Description = ' . $api_description;
-            $data = array('template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body);
+            $data = ['template' => $template, 'email' => $email_id, 'subject' => $subject, 'message_body' => $message_body];
             Mail::send($data['template'], $data, function ($message) use ($data) {
                 $message->to($data['email'])->subject($data['subject']);
                 $message->bcc(Config::get('constant.SUB_ADMIN_EMAIL_ID'))->subject($data['subject']);

@@ -1,4 +1,5 @@
 <?php
+
 //////////////////////////////////////////////////////////////////////////////
 //                   OptimumBrew Technology Pvt. Ltd.
 //
@@ -10,63 +11,60 @@
 // Email:            rushita.optimumbrew@gmail.com
 //
 //////////////////////////////////////////////////////////////////////////////
+
 namespace App\Http\Controllers;
 
 use App\Jobs\EmailJob;
+use App\Libraries\IPNListener;
+use Config;
 use DateTime;
+use DB;
 use Exception;
 use Log;
-use App\Libraries\IPNListener;
-use DB;
-use App\Http\Controllers\RegisterController;
-use Config;
 
 class PaypalIPNController extends Controller
 {
-
     private $country_code;
 
     public function paypalIpn()
     {
 
-        try{
+        try {
             $paypal_response_data = json_encode($_POST);
-            if($paypal_response_data == NULL){
+            if ($paypal_response_data == null) {
                 Log::error('paypalIpn received null response from PayPal');
             }
         } catch (Exception $e) {
-            (new ImageController())->logs("paypalIpn received null response from PayPal",$e);
-//            Log::error("paypalIpn received null response from PayPal: ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('paypalIpn received null response from PayPal', $e);
+            //            Log::error("paypalIpn received null response from PayPal: ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
 
-        Log::info('paypalipn_request_post_data : ',['response_array'=>$_POST]);
-        try{
-          $paypal_response_data = json_encode($_POST);
-          DB::beginTransaction();
-          DB::insert('INSERT INTO paypalipn_response(paypal_response) VALUES(?)',[$paypal_response_data]);
-          DB::commit();
+        Log::info('paypalipn_request_post_data : ', ['response_array' => $_POST]);
+        try {
+            $paypal_response_data = json_encode($_POST);
+            DB::beginTransaction();
+            DB::insert('INSERT INTO paypalipn_response(paypal_response) VALUES(?)', [$paypal_response_data]);
+            DB::commit();
         } catch (Exception $e) {
-            (new ImageController())->logs("paypalIpn unable to add ipn response into db",$e);
-//          Log::error("paypalIpn unable to add ipn response into db: ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
-          exit(0);
+            (new ImageController())->logs('paypalIpn unable to add ipn response into db', $e);
+            //          Log::error("paypalIpn unable to add ipn response into db: ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            exit(0);
         }
-
 
         $listener = new IPNListener();
-        $listener->use_sandbox = Config::get('constant.USE_SANDBOX');//true;
+        $listener->use_sandbox = Config::get('constant.USE_SANDBOX'); //true;
         //Log::error('paypalIpn',["Exception"]);
-
 
         try {
             $verified = $listener->processIpn();
 
             $report = $listener->getTextReport();
 
-//            Log::info('-----New IPN Call-----', ['Report' => $report]);
+            //            Log::info('-----New IPN Call-----', ['Report' => $report]);
 
         } catch (Exception $e) {
-            (new ImageController())->logs("paypalIpn",$e);
-//            Log::error("paypalIpn : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('paypalIpn', $e);
+            //            Log::error("paypalIpn : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
 
             exit(0);
         }
@@ -77,38 +75,37 @@ class PaypalIPNController extends Controller
 
             /** Convert user id (numeric) from uuid */
             if (isset($data['custom'])) {
-              $custom_data = $data['custom'];
-              $user_id = $custom_data;//->user_id;
-              if (!is_numeric($user_id)) {
-                $user_detail = DB::select('SELECT id FROM user_master WHERE uuid=?', [$user_id]);
-                if (count($user_detail) > 0) {
-                  $data['custom'] = $user_detail[0]->id;
+                $custom_data = $data['custom'];
+                $user_id = $custom_data; //->user_id;
+                if (! is_numeric($user_id)) {
+                    $user_detail = DB::select('SELECT id FROM user_master WHERE uuid=?', [$user_id]);
+                    if (count($user_detail) > 0) {
+                        $data['custom'] = $user_detail[0]->id;
+                    }
                 }
-              }
             }
 
             /** Convert payment date in to UTC format ex: 20:28:48 Mar 02, 2021 PST to 2021-03-03 20:28:48 */
             if (isset($data['payment_date'])) {
-              $data['payment_date'] = date("Y-m-d H:i:s", strtotime($data['payment_date']));
+                $data['payment_date'] = date('Y-m-d H:i:s', strtotime($data['payment_date']));
             }
             if (isset($data['subscr_date'])) {
-              $data['subscr_date'] = date("Y-m-d H:i:s", strtotime($data['subscr_date']));
+                $data['subscr_date'] = date('Y-m-d H:i:s', strtotime($data['subscr_date']));
             }
 
             if (isset($data['residence_country'])) {
-              $this->country_code = $data['residence_country'];
+                $this->country_code = $data['residence_country'];
             }
 
             if (isset($_POST['txn_type'])) {
                 $txn_type = $data['txn_type'];
                 if (strcmp($txn_type, 'subscr_signup') == 0) {
                     if (isset($data['custom'])) {
-                        $custom_data = json_decode($data['custom']);//get custom parameters passed with button code
+                        $custom_data = json_decode($data['custom']); //get custom parameters passed with button code
                         //Log::info('paypalIpn : ',['custom_data' => $custom_data]);
-                        $user_id = $custom_data;//->user_id;
+                        $user_id = $custom_data; //->user_id;
 
                         $subscription_date = isset($data['subscr_date']) ? $data['subscr_date'] : date('Y-m-d H:i:s');
-
 
                         $subscr_type = $data['item_number'];
                         $subscr_type_of_monthly_starter = Config::get('constant.MONTHLY_STARTER');
@@ -118,24 +115,24 @@ class PaypalIPNController extends Controller
 
                         if ($subscr_type == $subscr_type_of_monthly_starter or $subscr_type == $subscr_type_of_monthly_pro) {
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Month");
+                            $date->modify('+1 Month');
                             $expires = $date->format('Y-m-d H:i:s');
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Month'));
                         } elseif ($subscr_type == $subscr_type_of_yearly_starter or $subscr_type == $subscr_type_of_yearly_pro) {
 
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Year");
+                            $date->modify('+1 Year');
                             $expires = $date->format('Y-m-d H:i:s');
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Year'));
                         } else {
-                            $expires = NULL;
+                            $expires = null;
                         }
 
-                        $subscr_date_local = (New ImageController())->convertUTCDateTimeInToLocal($data['subscr_date'],$this->country_code);
-                        $expires_time_local = (New ImageController())->convertUTCDateTimeInToLocal($expires,$this->country_code);
+                        $subscr_date_local = (new ImageController())->convertUTCDateTimeInToLocal($data['subscr_date'], $this->country_code);
+                        $expires_time_local = (new ImageController())->convertUTCDateTimeInToLocal($expires, $this->country_code);
 
-                        $txn = array(
+                        $txn = [
                             'txn_id' => (isset($data['txn_id']) ? $data['txn_id'] : 'NA'),
                             'user_id' => $user_id,
                             'txn_type' => $txn_type,
@@ -146,32 +143,31 @@ class PaypalIPNController extends Controller
                             'payer_email' => $data['payer_email'],
                             'mc_currency' => $data['mc_currency'],
                             'period1' => (isset($data['period1']) ? $data['period1'] : 'NA'),
-                            'expires' => $expires,//date('Y-m-d H:i:s', strtotime('+14 day')),
+                            'expires' => $expires, //date('Y-m-d H:i:s', strtotime('+14 day')),
                             'expires_local' => $expires_time_local,
                             'payment_status' => (isset($data['payment_status']) ? $data['payment_status'] : 'NA'),
                             'subscr_type' => $data['item_number'],
                             'paypal_response' => json_encode($data),
                             'create_time' => date('Y-m-d H:i:s'),
                             'item_name' => (isset($data['item_name']) ? $data['item_name'] : 'NA'),
-                            'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA')
-                        );
+                            'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA'),
+                        ];
 
                         $this->updatePaymentDetailForSignUp($user_id, $txn);
                         $this->logPaypalIPN($user_id, $txn);
 
-                        Log::debug('paypalIpn-Verified 1: ', ['txn_type' => "subscr_signup", "txt" => $txn]);
+                        Log::debug('paypalIpn-Verified 1: ', ['txn_type' => 'subscr_signup', 'txt' => $txn]);
                     } else {
-                        Log::error('paypalIpn-Verified 2: ', ['txn_type' => "subscr_signup", "txt" => "Custom Data Not found"]);
+                        Log::error('paypalIpn-Verified 2: ', ['txn_type' => 'subscr_signup', 'txt' => 'Custom Data Not found']);
                     }
 
-                } else if (strcmp($txn_type, 'subscr_payment') == 0) {
+                } elseif (strcmp($txn_type, 'subscr_payment') == 0) {
 
                     if (isset($data['custom'])) {
                         $custom_data = json_decode($data['custom']);
                         $user_id = isset($custom_data) ? $custom_data : 'NA';
                         $payment_status = $data['payment_status'];
                         $subscription_date = isset($data['payment_date']) ? $data['payment_date'] : date('Y-m-d H:i:s');
-
 
                         $subscr_type = $data['item_number'];
                         $subscr_type_of_monthly_starter = Config::get('constant.MONTHLY_STARTER');
@@ -181,25 +177,25 @@ class PaypalIPNController extends Controller
 
                         if ($subscr_type == $subscr_type_of_monthly_starter or $subscr_type == $subscr_type_of_monthly_pro) {
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Month");
+                            $date->modify('+1 Month');
                             $expires = $date->format('Y-m-d H:i:s');
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Month'));
                         } elseif ($subscr_type == $subscr_type_of_yearly_starter or $subscr_type == $subscr_type_of_yearly_pro) {
 
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Year");
+                            $date->modify('+1 Year');
                             $expires = $date->format('Y-m-d H:i:s');
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Year'));
                         } else {
-                            $expires = NULL;
+                            $expires = null;
                         }
 
-                        $subscr_date_local = (New ImageController())->convertUTCDateTimeInToLocal($data['payment_date'],$this->country_code);
-                        $expires_time_local = (New ImageController())->convertUTCDateTimeInToLocal($expires,$this->country_code);
+                        $subscr_date_local = (new ImageController())->convertUTCDateTimeInToLocal($data['payment_date'], $this->country_code);
+                        $expires_time_local = (new ImageController())->convertUTCDateTimeInToLocal($expires, $this->country_code);
 
-                        $txn = array(
+                        $txn = [
                             'txn_id' => $data['txn_id'],
                             'user_id' => $user_id,
                             'txn_type' => $txn_type,
@@ -211,31 +207,31 @@ class PaypalIPNController extends Controller
                             'payer_email' => $data['payer_email'],
                             'mc_currency' => $data['mc_currency'],
                             'period1' => (isset($data['period1']) ? $data['period1'] : 'NA'),
-                            'expires' => $expires,//date('Y-m-d H:i:s', strtotime('+14 day')),
+                            'expires' => $expires, //date('Y-m-d H:i:s', strtotime('+14 day')),
                             'expires_local' => $expires_time_local,
                             'subscr_type' => $data['item_number'],
                             'item_name' => (isset($data['item_name']) ? $data['item_name'] : 'NA'),
                             'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA'),
                             'paypal_response' => json_encode($data),
-                            'create_time' => date('Y-m-d H:i:s')
-                        );
+                            'create_time' => date('Y-m-d H:i:s'),
+                        ];
 
                         if (strcmp($payment_status, 'Completed') == 0) {
-                            Log::debug('paypalIpn-Verified (Payment status : completed): ', ['payment_status' => $payment_status,'txn_type' => "subscr_payment", "txt" => $txn, "original_object_by_paypal" => $data]);
+                            Log::debug('paypalIpn-Verified (Payment status : completed): ', ['payment_status' => $payment_status, 'txn_type' => 'subscr_payment', 'txt' => $txn, 'original_object_by_paypal' => $data]);
                             $this->updatePaymentDetailByUserID($user_id, $txn);
                         } else {
-                            Log::debug('paypalIpn-Verified 3: ', ['txn_type' => "subscr_payment", "txt" => $txn]);
+                            Log::debug('paypalIpn-Verified 3: ', ['txn_type' => 'subscr_payment', 'txt' => $txn]);
                         }
                         $this->logPaypalIPN($user_id, $txn);
-                        Log::info('paypalIpn-Verified 4: ', ['txn_type' => "subscr_payment", "txt" => $txn]);
+                        Log::info('paypalIpn-Verified 4: ', ['txn_type' => 'subscr_payment', 'txt' => $txn]);
                     } else {
-                        Log::error('paypalIpn-Verified 5: ', ['txn_type' => "subscr_payment", "txt" => "Custom Data Not found"]);
+                        Log::error('paypalIpn-Verified 5: ', ['txn_type' => 'subscr_payment', 'txt' => 'Custom Data Not found']);
                     }
 
-                } else if (strcmp($txn_type, 'subscr_cancel') == 0) {
+                } elseif (strcmp($txn_type, 'subscr_cancel') == 0) {
                     if (isset($data['subscr_id'])) {
                         $paypal_id = $data['subscr_id'];
-                        $user_id = "NA";
+                        $user_id = 'NA';
                         $payment_status = (isset($data['payment_status']) ? $data['payment_status'] : 'NA');
                         $subscription_date = isset($data['subscr_date']) ? $data['subscr_date'] : date('Y-m-d H:i:s');
 
@@ -248,45 +244,45 @@ class PaypalIPNController extends Controller
                         if ($subscr_type == $subscr_type_of_monthly_starter or $subscr_type == $subscr_type_of_monthly_pro) {
 
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Month");
+                            $date->modify('+1 Month');
                             $expires = $date->format('Y-m-d H:i:s');
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Month'));
                         } elseif ($subscr_type == $subscr_type_of_yearly_starter or $subscr_type == $subscr_type_of_yearly_pro) {
 
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Year");
+                            $date->modify('+1 Year');
                             $expires = $date->format('Y-m-d H:i:s');
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Year'));
                         } else {
-                            $expires = NULL;
+                            $expires = null;
                         }
 
-                        $txn = array(
+                        $txn = [
                             'txn_id' => (isset($data['txn_id']) ? $data['txn_id'] : 'NA'),
                             'user_id' => $user_id,
                             'txn_type' => $txn_type,
                             'payment_status' => $payment_status,
                             'paypal_id' => (isset($data['subscr_id']) ? $data['subscr_id'] : 'NA'),
                             'subscr_date' => (isset($data['subscr_date']) ? $data['subscr_date'] : 'NA'),
-                            'mc_amount3' => (isset($data['mc_amount3']) ? $data['mc_amount3'] : NULL),
+                            'mc_amount3' => (isset($data['mc_amount3']) ? $data['mc_amount3'] : null),
                             'payer_email' => (isset($data['payer_email']) ? $data['payer_email'] : 'NA'),
                             'mc_currency' => (isset($data['mc_currency']) ? $data['mc_currency'] : 'NA'),
                             'period1' => (isset($data['period1']) ? $data['period1'] : 'NA'),
-                            'expires' => $expires,//date('Y-m-d H:i:s', strtotime('+14 day')),
+                            'expires' => $expires, //date('Y-m-d H:i:s', strtotime('+14 day')),
                             'subscr_type' => $data['item_number'],
                             'paypal_response' => json_encode($data),
                             'create_time' => date('Y-m-d H:i:s'),
                             'item_name' => (isset($data['item_name']) ? $data['item_name'] : 'NA'),
-                            'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA')
-                        );
+                            'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA'),
+                        ];
 
                         $this->cancelPaymentDetailByPaypalID($paypal_id, $txn);
                         $this->logPaypalIPN($user_id, $txn);
-                        Log::info('paypalIpn-Verified 6: ', ['txn_type' => "subscr_cancel", "txt" => $txn]);
+                        Log::info('paypalIpn-Verified 6: ', ['txn_type' => 'subscr_cancel', 'txt' => $txn]);
                     }
-                } else if (strcmp($txn_type, 'subscr_failed') == 0) {
+                } elseif (strcmp($txn_type, 'subscr_failed') == 0) {
                     if (isset($data['subscr_id'])) {
                         $paypal_id = $data['subscr_id'];
                         $user_id = isset($data['custom']) ? $data['custom'] : 'NA';
@@ -301,82 +297,80 @@ class PaypalIPNController extends Controller
                         if ($subscr_type == $subscr_type_of_monthly_starter or $subscr_type == $subscr_type_of_monthly_pro) {
 
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Month");
+                            $date->modify('+1 Month');
                             $expires = $date->format('Y-m-d H:i:s');
-
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Month'));
                         } elseif ($subscr_type == $subscr_type_of_yearly_starter or $subscr_type == $subscr_type_of_yearly_pro) {
 
                             $date = new DateTime($subscription_date);
-                            $date->modify("+1 Year");
+                            $date->modify('+1 Year');
                             $expires = $date->format('Y-m-d H:i:s');
 
                             //$expires = date('Y-m-d H:i:s', strtotime('+1 Year'));
                         } else {
-                            $expires = NULL;
+                            $expires = null;
                         }
 
-                        $txn = array(
+                        $txn = [
                             'txn_id' => (isset($data['txn_id']) ? $data['txn_id'] : 'NA'),
                             'user_id' => $user_id,
                             'txn_type' => $txn_type,
                             'paypal_id' => (isset($data['subscr_id']) ? $data['subscr_id'] : 'NA'),
                             'subscr_date' => (isset($data['subscr_date']) ? $data['subscr_date'] : 'NA'),
-                            'mc_amount3' => (isset($data['mc_amount3']) ? $data['mc_amount3'] : NULL),
+                            'mc_amount3' => (isset($data['mc_amount3']) ? $data['mc_amount3'] : null),
                             'payer_email' => (isset($data['payer_email']) ? $data['payer_email'] : 'NA'),
                             'mc_currency' => (isset($data['mc_currency']) ? $data['mc_currency'] : 'NA'),
                             'period1' => (isset($data['period1']) ? $data['period1'] : 'NA'),
-                            'expires' => $expires,//date('Y-m-d H:i:s', strtotime('+14 day')),
+                            'expires' => $expires, //date('Y-m-d H:i:s', strtotime('+14 day')),
                             'payment_status' => (isset($data['payment_status']) ? $data['payment_status'] : 'NA'),
                             'subscr_type' => $data['item_number'],
                             'paypal_response' => json_encode($data),
                             'create_time' => date('Y-m-d H:i:s'),
                             'item_name' => (isset($data['item_name']) ? $data['item_name'] : 'NA'),
                             'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA'),
-                            'payment_gross' => (isset($data['payment_gross']) ? $data['payment_gross'] : 0)
-                        );
+                            'payment_gross' => (isset($data['payment_gross']) ? $data['payment_gross'] : 0),
+                        ];
 
                         $this->logPaypalIPN($user_id, $txn);
-                        Log::debug('paypalIpn-subscr_failed : ', ['txn_type' => 'subscr_failed' ,'paypal_id' => $paypal_id]);
+                        Log::debug('paypalIpn-subscr_failed : ', ['txn_type' => 'subscr_failed', 'paypal_id' => $paypal_id]);
 
-                        if($user_id != 'NA' or $user_id != '')
-                        {
+                        if ($user_id != 'NA' or $user_id != '') {
                             $user_profile = (new LoginController())->getUserInfoByUserId($user_id);
 
                             $email_id = $user_profile->email_id;
                             $first_name = $user_profile->first_name;
 
                             /** When paypal payment failed due to some paypal reason after successfully completed transaction and user's plan activated.In this type of case we send one mail to admin so admin can change user role from admin panel*/
-                            $is_subscription_active = DB::select('SELECT id FROM subscriptions WHERE is_active =1 AND user_id =? ',[$user_id]);
-                            if(count($is_subscription_active) > 0 ){
-                              $template = 'payment_failed';
-                              $subject = 'PhotoADKing: Payment Failed After activation subscription';
-                              $message_body = array(
-                                'message' => 'User payment failed by paypal after successfully activated subscription.So please check and take any action on this user.',
-                                'subscription_name' => $txn['item_name'],
-                                'txn_id' => $txn['txn_id'],
-                                'txn_type' => 'Subscription[P]',
-                                'subscr_id' => $txn['paypal_id'],
-                                'first_name' => $first_name,
-                                'payment_received_from' => $txn['first_name'].' ('.$txn['payer_email'].')',
-                                'total_amount' => $txn['payment_gross'],
-                                'mc_currency' => $txn['mc_currency'],
-                                'payer_email' => $email_id,
-                                'payment_status' => $txn['payment_status']
-                              );
-                              $api_name = 'paypalIpn';
-                              $api_description = 'Subscription failed.';
+                            $is_subscription_active = DB::select('SELECT id FROM subscriptions WHERE is_active =1 AND user_id =? ', [$user_id]);
+                            if (count($is_subscription_active) > 0) {
+                                $template = 'payment_failed';
+                                $subject = 'PhotoADKing: Payment Failed After activation subscription';
+                                $message_body = [
+                                    'message' => 'User payment failed by paypal after successfully activated subscription.So please check and take any action on this user.',
+                                    'subscription_name' => $txn['item_name'],
+                                    'txn_id' => $txn['txn_id'],
+                                    'txn_type' => 'Subscription[P]',
+                                    'subscr_id' => $txn['paypal_id'],
+                                    'first_name' => $first_name,
+                                    'payment_received_from' => $txn['first_name'].' ('.$txn['payer_email'].')',
+                                    'total_amount' => $txn['payment_gross'],
+                                    'mc_currency' => $txn['mc_currency'],
+                                    'payer_email' => $email_id,
+                                    'payment_status' => $txn['payment_status'],
+                                ];
+                                $api_name = 'paypalIpn';
+                                $api_description = 'Subscription failed.';
 
-                              $admin_email_id = Config::get('constant.ADMIN_EMAIL_ID');
+                                $admin_email_id = Config::get('constant.ADMIN_EMAIL_ID');
 
-                              $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
+                                $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                             }
 
                             $template = 'payment_failed';
                             $subject = 'PhotoADKing: Payment Failed';
-                            $message_body = array(
+                            $message_body = [
                                 'message' => 'Sorry, your payment has been failed. No charges were made. Following are the transaction details.',
                                 'subscription_name' => $txn['item_name'],
                                 'txn_id' => $txn['txn_id'],
@@ -387,31 +381,28 @@ class PaypalIPNController extends Controller
                                 'total_amount' => $txn['payment_gross'],
                                 'mc_currency' => $txn['mc_currency'],
                                 'payer_email' => $email_id,
-                                'payment_status' => $txn['payment_status']
-                            );
+                                'payment_status' => $txn['payment_status'],
+                            ];
                             $api_name = 'paypalIpn';
                             $api_description = 'Subscription failed.';
 
                             $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
-                        }
-                        else{
+                        } else {
                             Log::debug('paypalIpn-subscr_failed did not get user_id : ', ['data' => $data]);
 
                             $admin_email_id = Config::get('constant.ADMIN_EMAIL_ID');
                             $template = 'simple';
                             $subject = 'PhotoADKing: PayPal IPN Failed';
-                            $message_body = array(
+                            $message_body = [
                                 'message' => '<p>API "paypalIpn" could not fetch user_id from IPN response in case of transaction type is subscr_failed. Please check the logs.</p>',
-                                'user_name' => 'Admin'
-                            );
+                                'user_name' => 'Admin',
+                            ];
                             $api_name = 'paypalIpn';
                             $api_description = 'Get INVALID from IPN.';
                             $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                         }
-
-
 
                     } else {
                         Log::error('paypalIpn-subscr_failed did not get any subscription data from IPN: ', ['data' => $data]);
@@ -419,10 +410,10 @@ class PaypalIPNController extends Controller
                         $admin_email_id = Config::get('constant.ADMIN_EMAIL_ID');
                         $template = 'simple';
                         $subject = 'PhotoADKing: PayPal IPN Failed';
-                        $message_body = array(
+                        $message_body = [
                             'message' => '<p>API "paypalIpn" could not fetch subscription details from IPN response in case of transaction type is subscr_failed. Please check the logs.</p>',
-                            'user_name' => 'Admin'
-                        );
+                            'user_name' => 'Admin',
+                        ];
                         $api_name = 'paypalIpn';
                         $api_description = 'Get INVALID from IPN.';
                         $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
@@ -435,7 +426,7 @@ class PaypalIPNController extends Controller
             // Log::error('paypalIpn',['IsVerified'=>"VERIFIED"]);
         } else {
             // IPN response was "INVALID"
-            Log::error('paypalIpn', ['IsVerified' => "INVALID"]);
+            Log::error('paypalIpn', ['IsVerified' => 'INVALID']);
             $data = $_POST;
             Log::info('-----new payment post data (INVALID)-----', ['Report' => $data]);
             $txn_type = $data['txn_type'];
@@ -447,7 +438,6 @@ class PaypalIPNController extends Controller
                     $user_id = isset($data['custom']) ? $data['custom'] : 'NA';
                     $subscription_date = isset($data['subscr_date']) ? $data['subscr_date'] : date('Y-m-d H:i:s');
 
-
                     $subscr_type = $data['item_number'];
                     $subscr_type_of_monthly_starter = Config::get('constant.MONTHLY_STARTER');
                     $subscr_type_of_yearly_starter = Config::get('constant.YEARLY_STARTER');
@@ -457,53 +447,52 @@ class PaypalIPNController extends Controller
                     if ($subscr_type == $subscr_type_of_monthly_starter or $subscr_type == $subscr_type_of_monthly_pro) {
 
                         $date = new DateTime($subscription_date);
-                        $date->modify("+1 Month");
+                        $date->modify('+1 Month');
                         $expires = $date->format('Y-m-d H:i:s');
 
                         //$expires = date('Y-m-d H:i:s', strtotime('+1 Month'));
                     } elseif ($subscr_type == $subscr_type_of_yearly_starter or $subscr_type == $subscr_type_of_yearly_pro) {
 
                         $date = new DateTime($subscription_date);
-                        $date->modify("+1 Year");
+                        $date->modify('+1 Year');
                         $expires = $date->format('Y-m-d H:i:s');
 
                         //$expires = date('Y-m-d H:i:s', strtotime('+1 Year'));
                     } else {
-                        $expires = NULL;
+                        $expires = null;
                     }
 
-                    $txn = array(
+                    $txn = [
                         'txn_id' => (isset($data['txn_id']) ? $data['txn_id'] : 'NA'),
                         'user_id' => $user_id,
                         'txn_type' => $txn_type,
                         'paypal_id' => (isset($data['subscr_id']) ? $data['subscr_id'] : 'NA'),
                         'subscr_date' => (isset($data['subscr_date']) ? $data['subscr_date'] : 'NA'),
-                        'mc_amount3' => (isset($data['mc_amount3']) ? $data['mc_amount3'] : NULL),
+                        'mc_amount3' => (isset($data['mc_amount3']) ? $data['mc_amount3'] : null),
                         'payer_email' => (isset($data['payer_email']) ? $data['payer_email'] : 'NA'),
                         'mc_currency' => (isset($data['mc_currency']) ? $data['mc_currency'] : 'NA'),
                         'period1' => (isset($data['period1']) ? $data['period1'] : 'NA'),
-                        'expires' => $expires,//date('Y-m-d H:i:s', strtotime('+14 day')),
+                        'expires' => $expires, //date('Y-m-d H:i:s', strtotime('+14 day')),
                         'payment_status' => (isset($data['payment_status']) ? $data['payment_status'] : 'NA'),
                         'subscr_type' => $data['item_number'],
                         'paypal_response' => json_encode($data),
                         'create_time' => date('Y-m-d H:i:s'),
                         'item_name' => (isset($data['item_name']) ? $data['item_name'] : 'NA'),
                         'first_name' => (isset($data['first_name']) ? $data['first_name'] : 'NA'),
-                        'payment_gross' => (isset($data['payment_gross']) ? $data['payment_gross'] : 0)
-                    );
+                        'payment_gross' => (isset($data['payment_gross']) ? $data['payment_gross'] : 0),
+                    ];
 
                     $this->logPaypalIPN($user_id, $txn);
                     Log::debug('paypalIpn-Invalid subscr_failed : ', ['txn_type' => $data['txn_type'], 'paypal_id' => $paypal_id]);
 
-                    if($user_id != 'NA' or $user_id != '')
-                    {
+                    if ($user_id != 'NA' or $user_id != '') {
                         $user_profile = (new LoginController())->getUserInfoByUserId($user_id);
-                        $email_id =$user_profile->email_id;
+                        $email_id = $user_profile->email_id;
                         $first_name = $user_profile->first_name;
 
                         $template = 'payment_failed';
                         $subject = 'PhotoADKing: Payment Failed';
-                        $message_body = array(
+                        $message_body = [
                             'message' => 'Transaction detail is not stored in the system by IPN API (INVALID). Please verify the transaction from admin portal. Following are the transaction details.',
                             'subscription_name' => $txn['item_name'],
                             'txn_id' => $txn['txn_id'],
@@ -514,23 +503,22 @@ class PaypalIPNController extends Controller
                             'total_amount' => $txn['payment_gross'],
                             'mc_currency' => $txn['mc_currency'],
                             'payer_email' => $email_id,
-                            'payment_status' => $txn['payment_status']
-                        );
+                            'payment_status' => $txn['payment_status'],
+                        ];
                         $api_name = 'paypalIpn';
                         $api_description = 'Subscription failed in case of getting INVALID response from IPN.';
 
                         $this->dispatch(new EmailJob($user_id, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
 
-                    }
-                    else{
+                    } else {
                         Log::error('paypalIpn-subscr_failed did not get any user data from IPN: ', ['data' => $data]);
 
                         $template = 'simple';
                         $subject = 'PhotoADKing: PayPal IPN Failed';
-                        $message_body = array(
+                        $message_body = [
                             'message' => '<p>API "paypalIpn" could not fetch user_id from IPN response in case of getting an INVALID response. Please check the logs.</p>',
-                            'user_name' => 'Admin'
-                        );
+                            'user_name' => 'Admin',
+                        ];
                         $api_name = 'paypalIpn';
                         $api_description = 'Get INVALID from IPN.';
                         $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
@@ -542,33 +530,30 @@ class PaypalIPNController extends Controller
 
                     $template = 'simple';
                     $subject = 'PhotoADKing: PayPal IPN Failed';
-                    $message_body = array(
+                    $message_body = [
                         'message' => '<p>API "paypalIpn" could not fetch subscription details from IPN response in case of getting an INVALID response. Please check the logs.</p>',
-                        'user_name' => 'Admin'
-                    );
+                        'user_name' => 'Admin',
+                    ];
                     $api_name = 'paypalIpn';
                     $api_description = 'Get INVALID from IPN.';
                     $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                 }
 
-            }else
-            {
+            } else {
                 Log::error('paypalIpn-subscr_failed did not get any txn_type from IPN: ', ['data' => $data]);
 
                 $template = 'simple';
                 $subject = 'PhotoADKing: PayPal IPN Failed';
-                $message_body = array(
+                $message_body = [
                     'message' => '<p>IPN received INVALID response. Please check the logs.</p>',
-                    'user_name' => 'Admin'
-                );
+                    'user_name' => 'Admin',
+                ];
                 $api_name = 'paypalIpn';
                 $api_description = 'Get INVALID from IPN.';
                 $this->dispatch(new EmailJob(1, $admin_email_id, $subject, $message_body, $template, $api_name, $api_description));
 
-
             }
-
 
         }
     }
@@ -581,7 +566,7 @@ class PaypalIPNController extends Controller
             $email_id = $user_profile->email_id;
             $first_name = $user_profile->first_name;
 
-            Log::info('paypalIpn-updatePaymentDetailForSignUp', ["user_id"=>$user_id,'txn' => $txn]);
+            Log::info('paypalIpn-updatePaymentDetailForSignUp', ['user_id' => $user_id, 'txn' => $txn]);
             //$result = DB::table('subscriptions')->select(array('id', 'user_id', 'transaction_id', 'subscr_type', 'total_amount', 'expiration_time'))->where('user_id', $user_id)->get();
 
             $result = DB::select('SELECT
@@ -602,14 +587,14 @@ class PaypalIPNController extends Controller
                       ORDER BY id DESC', [$user_id]);
 
             //DB::select('SELECT * FROM subscriptions WHERE ');
-            $db_activation_time = date("Y-m-d H:i:s");
+            $db_activation_time = date('Y-m-d H:i:s');
             if (count($result) == 0) {
 
                 // Add new SignUp entry
                 $days_to_add = 0;
                 $final_expiration_time = $txn['expires'];
                 //identify payment Mode
-                $payment_mode = "PAYPAL";
+                $payment_mode = 'PAYPAL';
                 $product_details = DB::select('SELECT id AS product_id,
                 name AS product_name,
                 discount_percentage
@@ -653,13 +638,13 @@ class PaypalIPNController extends Controller
                         $txn['expires'],
                         $days_to_add,
                         $final_expiration_time,
-                        $txn['create_time']
+                        $txn['create_time'],
                     ]);
 
                 DB::commit();
                 $this->updateUserRole($txn['subscr_type'], $user_id);
 
-                if ($txn['payment_status'] == "Completed") {
+                if ($txn['payment_status'] == 'Completed') {
                     $this->updatePaymentStatus($txn['txn_id'], 1, 1);
                 } else {
                     $this->updatePaymentStatus($txn['txn_id'], 0, 0);
@@ -667,8 +652,8 @@ class PaypalIPNController extends Controller
 
                 $template = 'payment_successful';
                 $subject = 'PhotoADKing: Subscribe The New Plan';
-                $message_body = array(
-                    'message' => 'Thank you for purchasing subscription for the ' . $txn['item_name'] . '.',
+                $message_body = [
+                    'message' => 'Thank you for purchasing subscription for the '.$txn['item_name'].'.',
                     'subscription_name' => $txn['item_name'],
                     'txn_id' => $txn['txn_id'],
                     'txn_type' => 'Subscription[P]',
@@ -680,15 +665,14 @@ class PaypalIPNController extends Controller
                     'payer_email' => $email_id,
                     'payment_status' => $txn['payment_status'],
                     'activation_date' => $txn['subscr_date'],
-                    'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                    'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                     'activation_date_local' => $txn['subscr_date_local'],
-                    'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                );
+                    'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                ];
                 $api_name = 'paypalIpn';
                 $api_description = 'subscribe a new subscription.';
 
                 $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
-
 
             } else {
 
@@ -754,19 +738,18 @@ class PaypalIPNController extends Controller
                     }
                     $this->updateUserRole($txn['subscr_type'], $user_id);
 
-                    if ($txn['payment_status'] == "Completed") {
+                    if ($txn['payment_status'] == 'Completed') {
                         $this->updatePaymentStatus($txn['txn_id'], 1, 1);
                     } else {
                         $this->updatePaymentStatus($txn['txn_id'], 0, 0);
                     }
 
                     //if($result[0]->payment_date == $txn['subscr_date']){
-                    if (date("Y-m-d", strtotime($result[0]->payment_date)) == date("Y-m-d", strtotime($txn['subscr_date']))) {
-
+                    if (date('Y-m-d', strtotime($result[0]->payment_date)) == date('Y-m-d', strtotime($txn['subscr_date']))) {
 
                         $template = 'payment_successful';
                         $subject = 'PhotoADKing: Payment Received';
-                        $message_body = array(
+                        $message_body = [
                             'message' => 'Your payment received successfully. Following are the transaction details.',
                             'subscription_name' => $txn['item_name'],
                             'txn_id' => $txn['txn_id'],
@@ -779,10 +762,10 @@ class PaypalIPNController extends Controller
                             'payer_email' => $email_id,
                             'payment_status' => $txn['payment_status'],
                             'activation_date' => $txn['subscr_date'],
-                            'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                            'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                             'activation_date_local' => $txn['subscr_date_local'],
-                            'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                        );
+                            'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                        ];
                         $api_name = 'paypalIpn';
                         $api_description = 'subscribe a new subscription.';
 
@@ -795,9 +778,9 @@ class PaypalIPNController extends Controller
 
                         $template = 'payment_successful';
                         $subject = 'PhotoADKing: Payment Received For Subscription Renewal';
-                        $message_body = array(
-                            'message' => 'Your subscription for <b>' . $txn['item_name'] . '</b> has been renewed on <b>' . $subscr_date_format . '</b>.
-Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We hope you are enjoying the PhotoADKing.',
+                        $message_body = [
+                            'message' => 'Your subscription for <b>'.$txn['item_name'].'</b> has been renewed on <b>'.$subscr_date_format.'</b>.
+Thanks for renewing the subscription for <b>'.$txn['item_name'].'</b>. We hope you are enjoying the PhotoADKing.',
                             'subscription_name' => $txn['item_name'],
                             'txn_id' => $txn['txn_id'],
                             'txn_type' => 'Subscription[P]',
@@ -809,18 +792,17 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                             'payer_email' => $email_id,
                             'payment_status' => $txn['payment_status'],
                             'activation_date' => $txn['subscr_date'],
-                            'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                            'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                             'activation_date_local' => $txn['subscr_date_local'],
-                            'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                        );
+                            'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                        ];
                         $api_name = 'paypalIpn';
                         $api_description = 'subscribe a new subscription.';
 
                         $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
-                      }
+                    }
 
                 } else {
-
 
                     $expiry_detail = $this->getRemainingDays($db_cancellation_date, $db_expiration_time, $remaining_days, $old_amount, $txn['mc_amount3'], $subscr_type, $txn['subscr_type'], $txn['expires']);
                     $final_expiration_time = $expiry_detail['final_expiration_time'];
@@ -829,7 +811,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                     // Add new SignUp entry
 
                     //identify payment Mode
-                    $payment_mode = "PAYPAL";
+                    $payment_mode = 'PAYPAL';
                     $product_details = DB::select('SELECT id AS product_id,
                   name AS product_name,
                   discount_percentage
@@ -837,7 +819,6 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                   WHERE is_applied = 1');
 
                     $product_id = $product_details[0]->product_id;
-
 
                     DB::beginTransaction();
 
@@ -874,12 +855,12 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                             $txn['expires'],
                             $days_to_add,
                             $final_expiration_time,
-                            $txn['create_time']
+                            $txn['create_time'],
                         ]);
 
                     DB::commit();
                     $this->updateUserRole($txn['subscr_type'], $user_id);
-                    if ($txn['payment_status'] == "Completed") {
+                    if ($txn['payment_status'] == 'Completed') {
                         $this->updatePaymentStatus($txn['txn_id'], 1, 1);
                     } else {
                         $this->updatePaymentStatus($txn['txn_id'], 0, 0);
@@ -887,7 +868,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
                     $template = 'payment_successful';
                     $subject = 'PhotoADKing: Subscription Plan Changed';
-                    $message_body = array(
+                    $message_body = [
                         'message' => 'Your subscription plan changed successfully. Remaining days are added into your new subscription. Following are the transaction details.',
                         'subscription_name' => $txn['item_name'],
                         'txn_id' => $txn['txn_id'],
@@ -900,10 +881,10 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                         'payer_email' => $email_id,
                         'payment_status' => $txn['payment_status'],
                         'activation_date' => $txn['subscr_date'],
-                        'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                        'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                         'activation_date_local' => $txn['subscr_date_local'],
-                        'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                    );
+                        'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                    ];
                     $api_name = 'paypalIpn';
                     $api_description = 'Subscription plan changed.';
                     $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
@@ -912,15 +893,15 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
             }
         } catch (Exception $e) {
-            (new ImageController())->logs("updatePaymentDetailForSignUp",$e);
-//            Log::error("updatePaymentDetailForSignUp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('updatePaymentDetailForSignUp', $e);
+            //            Log::error("updatePaymentDetailForSignUp : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
 
     }
 
     public function updatePaymentDetailByUserID($user_id, array $txn)
     {
-        Log::info('updatePaymentDetailByUserID', ["user_id"=>$user_id, 'txn' => $txn]);
+        Log::info('updatePaymentDetailByUserID', ['user_id' => $user_id, 'txn' => $txn]);
         $user_profile = (new LoginController())->getUserInfoByUserId($user_id);
         $email_id = $user_profile->email_id;
         $first_name = $user_profile->first_name;
@@ -942,12 +923,12 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                       WHERE user_id = ?
                       ORDER BY id DESC', [$user_id]);
 
-        $db_activation_time = date("Y-m-d H:i:s");
+        $db_activation_time = date('Y-m-d H:i:s');
         if (count($result) == 0) {
 
             // Add new SignUp entry
             //identify payment Mode
-            $payment_mode = "PAYPAL";
+            $payment_mode = 'PAYPAL';
             $days_to_add = 0;
             $final_expiration_time = $txn['expires'];
 
@@ -959,8 +940,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
             $product_id = $product_details[0]->product_id;
 
-
-          DB::beginTransaction();
+            DB::beginTransaction();
 
             DB::insert('INSERT INTO subscriptions
                             (user_id,
@@ -1000,7 +980,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
             DB::commit();
             $this->updateUserRole($txn['subscr_type'], $user_id);
-            if ($txn['payment_status'] == "Completed") {
+            if ($txn['payment_status'] == 'Completed') {
                 $this->updatePaymentStatus($txn['txn_id'], 1, 1);
             } else {
                 $this->updatePaymentStatus($txn['txn_id'], 0, 0);
@@ -1008,7 +988,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
             $template = 'payment_successful';
             $subject = 'PhotoADKing: Subscribe The New Plan';
-            $message_body = array(
+            $message_body = [
                 'message' => 'Your payment received successfully. Following are the transaction details.',
                 'subscription_name' => $txn['item_name'],
                 'txn_id' => $txn['txn_id'],
@@ -1021,10 +1001,10 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                 'payer_email' => $email_id,
                 'payment_status' => $txn['payment_status'],
                 'activation_date' => $txn['subscr_date'],
-                'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                 'activation_date_local' => $txn['subscr_date_local'],
-                'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-            );
+                'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+            ];
             $api_name = 'paypalIpn';
             $api_description = 'subscribe a new subscription.';
             $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
@@ -1068,7 +1048,6 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
                     DB::commit();
 
-
                 } else {
 
                     // Update Form signup to first payment
@@ -1094,18 +1073,17 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                     DB::commit();
                 }
                 $this->updateUserRole($txn['subscr_type'], $user_id);
-                if ($txn['payment_status'] == "Completed") {
+                if ($txn['payment_status'] == 'Completed') {
                     $this->updatePaymentStatus($txn['txn_id'], 1, 1);
                 } else {
                     $this->updatePaymentStatus($txn['txn_id'], 0, 0);
                 }
 
-
-                if (date("Y-m-d", strtotime($result[0]->payment_date)) == date("Y-m-d", strtotime($txn['subscr_date']))) {
+                if (date('Y-m-d', strtotime($result[0]->payment_date)) == date('Y-m-d', strtotime($txn['subscr_date']))) {
 
                     $template = 'payment_successful';
                     $subject = 'PhotoADKing: Payment Received';
-                    $message_body = array(
+                    $message_body = [
                         'message' => 'Your payment received successfully. Following are the transaction details.',
                         'subscription_name' => $txn['item_name'],
                         'txn_id' => $txn['txn_id'],
@@ -1118,10 +1096,10 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                         'payer_email' => $email_id,
                         'payment_status' => $txn['payment_status'],
                         'activation_date' => $txn['subscr_date'],
-                        'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                        'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                         'activation_date_local' => $txn['subscr_date_local'],
-                        'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                    );
+                        'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                    ];
                     $api_name = 'paypalIpn';
                     $api_description = 'subscribe a new subscription.';
                     $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
@@ -1133,9 +1111,9 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
                     $template = 'payment_successful';
                     $subject = 'PhotoADKing: Payment Received For Subscription Renewal';
-                    $message_body = array(
-                        'message' => 'Your subscription for <b>' . $txn['item_name'] . '</b> has been renewed on <b>' . $subscr_date_format . '</b>.
-Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We hope you are enjoying the PhotoADKing.',
+                    $message_body = [
+                        'message' => 'Your subscription for <b>'.$txn['item_name'].'</b> has been renewed on <b>'.$subscr_date_format.'</b>.
+Thanks for renewing the subscription for <b>'.$txn['item_name'].'</b>. We hope you are enjoying the PhotoADKing.',
                         'subscription_name' => $txn['item_name'],
                         'txn_id' => $txn['txn_id'],
                         'txn_type' => 'Subscription[P]',
@@ -1147,18 +1125,17 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                         'payer_email' => $email_id,
                         'payment_status' => $txn['payment_status'],
                         'activation_date' => $txn['subscr_date'],
-                        'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                        'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                         'activation_date_local' => $txn['subscr_date_local'],
-                        'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                    );
+                        'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                    ];
                     $api_name = 'paypalIpn';
                     $api_description = 'auto-renew subscription.';
 
-                    Log::debug('updatePaymentDetailByUserID (Payment Received For Subscription Renewal) : ',['message_body' => $message_body]);
+                    Log::debug('updatePaymentDetailByUserID (Payment Received For Subscription Renewal) : ', ['message_body' => $message_body]);
                     $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
                 }
-
 
             } else {
 
@@ -1169,7 +1146,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                 $days_to_add = $expiry_detail['days_to_add'];
                 Log::info('updatePaymentDetailByUserID Expiration : ', ['final_expiration_time' => $final_expiration_time, 'days_to_add' => $days_to_add]);
 
-                $payment_mode = "PAYPAL";
+                $payment_mode = 'PAYPAL';
 
                 $product_details = DB::select('SELECT id AS product_id,
                     name AS product_name,
@@ -1219,7 +1196,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
                 DB::commit();
                 $this->updateUserRole($txn['subscr_type'], $user_id);
-                if ($txn['payment_status'] == "Completed") {
+                if ($txn['payment_status'] == 'Completed') {
                     $this->updatePaymentStatus($txn['txn_id'], 1, 1);
                 } else {
                     $this->updatePaymentStatus($txn['txn_id'], 0, 0);
@@ -1227,7 +1204,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
                 $template = 'payment_successful';
                 $subject = 'PhotoADKing: Subscription Plan Changed';
-                $message_body = array(
+                $message_body = [
                     'message' => 'Your subscription plan changed successfully. Remaining days are added into your new subscription. Following are the transaction details.',
                     'subscription_name' => $txn['item_name'],
                     'txn_id' => $txn['txn_id'],
@@ -1240,20 +1217,20 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                     'payer_email' => $email_id,
                     'payment_status' => $txn['payment_status'],
                     'activation_date' => $txn['subscr_date'],
-                    'next_billing_date' => ($txn['expires'] != NULL) ? $txn['expires'] : 'NA',
+                    'next_billing_date' => ($txn['expires'] != null) ? $txn['expires'] : 'NA',
                     'activation_date_local' => $txn['subscr_date_local'],
-                    'next_billing_date_local' => ($txn['expires_local'] != NULL) ? $txn['expires_local'] : ''
-                );
+                    'next_billing_date_local' => ($txn['expires_local'] != null) ? $txn['expires_local'] : '',
+                ];
                 $api_name = 'paypalIpn';
                 $api_description = 'Subscription plan changed.';
                 $this->dispatch(new EmailJob($user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
-              }
+            }
         }
     }
 
     public function cancelPaymentDetailByPaypalID($paypal_id, $txn)
     {
-        Log::info('cancelPaymentDetailByPaypalID: ', ["txt" => $txn]);
+        Log::info('cancelPaymentDetailByPaypalID: ', ['txt' => $txn]);
         $result = DB::select('SELECT
                       id,
                       user_id,
@@ -1275,8 +1252,8 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
             //Major Error
 
         } else {
-            $db_expiration_time = date("Y-m-d", strtotime($result[0]->expiration_time));
-            $current_date = date("Y-m-d");
+            $db_expiration_time = date('Y-m-d', strtotime($result[0]->expiration_time));
+            $current_date = date('Y-m-d');
 
             if ($db_expiration_time > $current_date) {
                 $datetime1 = new DateTime($db_expiration_time);
@@ -1288,9 +1265,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
             }
             $remaining_days = $remaining_days + $result[0]->days_to_add;
 
-
             //$remaining_days = (new VerificationController())->differenceBetweenTwoDate($current_date, $db_expiration_time);
-
 
             Log::info('cancelPaymentDetailByPaypalID (remaining_days) : ', ['remaining_days' => $remaining_days]);
 
@@ -1298,7 +1273,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
             $db_row_id = $result[0]->id;
             $subscr_type = $result[0]->subscr_type;
             $db_txn_id = $result[0]->transaction_id;
-            $cancellation_date = date("Y-m-d H:i:s");
+            $cancellation_date = date('Y-m-d H:i:s');
             DB::beginTransaction();
             DB::update('UPDATE subscriptions SET
                             cancellation_date = ?,
@@ -1336,27 +1311,27 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
                 $subscription_name = 'Yearly Starter';
             } else {
-                $subscription_name = "None";
+                $subscription_name = 'None';
             }
-
 
             $txn_id = $result[0]->transaction_id;
             $total_amount = $result[0]->total_amount;
             $user_id = $result[0]->user_id;
             $user_profile = (new LoginController())->getUserInfoByUserId($user_id);
-            if(!isset($user_profile->email_id)){
+            if (! isset($user_profile->email_id)) {
                 Log::info('cancel_subscription by payapal : The user has already deleted the account');
+
                 return;
             }
             $email_id = $user_profile->email_id;
             $first_name = $user_profile->first_name;
 
-            $cancellation_date_local = (New ImageController())->convertUTCDateTimeInToLocal($cancellation_date,$this->country_code);
-            $expiration_date_local = (New ImageController())->convertUTCDateTimeInToLocal($result[0]->final_expiration_time,$this->country_code);
+            $cancellation_date_local = (new ImageController())->convertUTCDateTimeInToLocal($cancellation_date, $this->country_code);
+            $expiration_date_local = (new ImageController())->convertUTCDateTimeInToLocal($result[0]->final_expiration_time, $this->country_code);
 
             $template = 'cancel_subscription';
             $subject = 'PhotoADKing: Subscription Cancelled';
-            $message_body = array(
+            $message_body = [
                 'message' => 'Your subscription cancelled successfully. Following are the subscription details.',
                 'subscription_name' => $subscription_name,
                 'txn_id' => $txn_id,
@@ -1371,14 +1346,13 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                 'cancellation_date' => $cancellation_date,
                 'expiration_date' => $result[0]->final_expiration_time,
                 'cancellation_date_local' => $cancellation_date_local,
-                'expiration_date_local' => $expiration_date_local
-            );
+                'expiration_date_local' => $expiration_date_local,
+            ];
             $api_name = 'paypalIpn';
             $api_description = 'subscription cancelled .';
 
-          Log::info('cancel_subscription mail data : ',['user_id'=>$result[0]->user_id,'email_id'=>$email_id,'subject'=>$subject,'message_body'=>$message_body]);
-          $this->dispatch(new EmailJob($result[0]->user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
-
+            Log::info('cancel_subscription mail data : ', ['user_id' => $result[0]->user_id, 'email_id' => $email_id, 'subject' => $subject, 'message_body' => $message_body]);
+            $this->dispatch(new EmailJob($result[0]->user_id, $email_id, $subject, $message_body, $template, $api_name, $api_description));
 
         }
     }
@@ -1387,7 +1361,7 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
     {
 
         try {
-          Log::debug('logPaypalIPN', ["user_id"=>$user_id,'txn' => $txn]);
+            Log::debug('logPaypalIPN', ['user_id' => $user_id, 'txn' => $txn]);
             DB::beginTransaction();
 
             DB::insert('INSERT INTO subscriptions_logs
@@ -1417,8 +1391,8 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
             DB::commit();
         } catch (Exception $e) {
-            (new ImageController())->logs("logPaypalIPN",$e);
-//            Log::error("logPaypalIPN : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('logPaypalIPN', $e);
+            //            Log::error("logPaypalIPN : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -1428,15 +1402,15 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
         try {
 
             //Log::info('getRemainingDays');
-            if ($remaining_days == "" or $remaining_days == NULL) {
+            if ($remaining_days == '' or $remaining_days == null) {
                 $remaining_days = 0;
             }
 
             $date = new DateTime($db_cancellation_date);
             $date->modify("+$remaining_days day");
             $final_expiration_date = $date->format('Y-m-d');
-            $db_expiration_time = date("Y-m-d", strtotime($db_expiration_time));
-            $current_date = date("Y-m-d");
+            $db_expiration_time = date('Y-m-d', strtotime($db_expiration_time));
+            $current_date = date('Y-m-d');
             if ($final_expiration_date > $current_date) {
                 //$expires = date("Y-m-d", strtotime($expires));
 
@@ -1446,12 +1420,12 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                         'expires' => $expires,
                         'current_date' => $current_date,
                         'db_expiration_time' => $db_expiration_time,
-                        'db_remaining_days' => $remaining_days
+                        'db_remaining_days' => $remaining_days,
                     ]);
 
                 //$remaining_days = (new VerificationController())->differenceBetweenTwoDate($db_expiration_time, $current_date);
-                $db_expiration_time = date("Y-m-d", strtotime($final_expiration_date));
-                $current_date = date("Y-m-d");
+                $db_expiration_time = date('Y-m-d', strtotime($final_expiration_date));
+                $current_date = date('Y-m-d');
 
                 if ($db_expiration_time > $current_date) {
                     $datetime1 = new DateTime($db_expiration_time);
@@ -1486,8 +1460,8 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                 $old_subscr_amount_per_day = $old_amount / $total_old_days;
                 $new_subscr_amount_per_day = $new_amount / $total_new_days;
 
-                $remaining_price = $remaining_days * round($old_subscr_amount_per_day,2);
-                $days_to_add = intval(($remaining_price * 1) / round($new_subscr_amount_per_day,2));
+                $remaining_price = $remaining_days * round($old_subscr_amount_per_day, 2);
+                $days_to_add = intval(($remaining_price * 1) / round($new_subscr_amount_per_day, 2));
 
                 Log::info('getRemainingDays Expiration detail before calculation : ', ['expiry' => $expires]);
 
@@ -1512,15 +1486,15 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
                         'days_to_add' => $days_to_add,
                         'remaining_days' => $remaining_days]);
 
-                return array('final_expiration_time' => $expires, 'days_to_add' => $days_to_add);
+                return ['final_expiration_time' => $expires, 'days_to_add' => $days_to_add];
             } else {
                 //$remaining_days = 0;
-                return array('final_expiration_time' => $expires, 'days_to_add' => 0);
+                return ['final_expiration_time' => $expires, 'days_to_add' => 0];
             }
 
         } catch (Exception $e) {
-            (new ImageController())->logs("getRemainingDays",$e);
-//            Log::error("getRemainingDays : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('getRemainingDays', $e);
+            //            Log::error("getRemainingDays : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -1536,8 +1510,8 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
             return $final_expiration_time;
 
         } catch (Exception $e) {
-            (new ImageController())->logs("getFinalExpirationTime",$e);
-//            Log::error("getFinalExpirationTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('getFinalExpirationTime', $e);
+            //            Log::error("getFinalExpirationTime : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -1555,10 +1529,9 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
 
             DB::commit();
 
-
         } catch (Exception $e) {
-            (new ImageController())->logs("updatePaymentStatus",$e);
-//            Log::error("updatePaymentStatus : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('updatePaymentStatus', $e);
+            //            Log::error("updatePaymentStatus : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
 
@@ -1651,9 +1624,8 @@ Thanks for renewing the subscription for <b>' . $txn['item_name'] . '</b>. We ho
             }
 
         } catch (Exception $e) {
-            (new ImageController())->logs("updateUserRole",$e);
-//            Log::error("updateUserRole : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
+            (new ImageController())->logs('updateUserRole', $e);
+            //            Log::error("updateUserRole : ", ["Exception" => $e->getMessage(), "\nTraceAsString" => $e->getTraceAsString()]);
         }
     }
-
 }

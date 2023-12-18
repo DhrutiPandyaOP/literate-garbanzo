@@ -8,53 +8,52 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class DeleteGeneratedDesignFiles extends Command
 {
-  /**
-   * The name and signature of the console command.
-   *
-   * @var string
-   */
-  protected $signature = 'delete-generated-design-files';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'delete-generated-design-files';
 
-  /**
-   * The console command description.
-   *
-   * @var string
-   */
-  protected $description = 'delete all design queue related files from s3 bucket ';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'delete all design queue related files from s3 bucket ';
 
-  /**
-   * Create a new command instance.
-   *
-   * @return void
-   */
-  public function __construct()
-  {
-    parent::__construct();
-  }
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
-  /**
-   * Execute the console command.
-   *
-   * @return mixed
-   */
-  public function handle()
-  {
-    try{
-      $disk = new S3Client([
-        'version' => 'latest',
-        'region' => config('constant.AWS_REGION'),
-        'credentials' => [
-          'key' => config('constant.AWS_KEY'),
-          'secret' => config('constant.AWS_SECRET')
-        ]
-      ]);
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        try {
+            $disk = new S3Client([
+                'version' => 'latest',
+                'region' => config('constant.AWS_REGION'),
+                'credentials' => [
+                    'key' => config('constant.AWS_KEY'),
+                    'secret' => config('constant.AWS_SECRET'),
+                ],
+            ]);
 
-      $result = DB::select('SELECT
+            $result = DB::select('SELECT
                                      id,
                                      output_design,
                                      create_time,
@@ -65,88 +64,84 @@ class DeleteGeneratedDesignFiles extends Command
                                         TIMESTAMPDIFF(HOUR, create_time, NOW()) > 24 AND
                                         NOT isnull(output_design)
                                     ORDER BY create_time');
-      $filename_array = array();
-      if (count($result) > 0) {
-        foreach ($result as $row) {
-          if ($row->output_design != '') {
-            $urlComponents = parse_url($row->output_design);
-            $path = $urlComponents['path'];
-            $filename = basename($path);
-            $filename_array[] = $filename;
+            $filename_array = [];
+            if (count($result) > 0) {
+                foreach ($result as $row) {
+                    if ($row->output_design != '') {
+                        $urlComponents = parse_url($row->output_design);
+                        $path = $urlComponents['path'];
+                        $filename = basename($path);
+                        $filename_array[] = $filename;
 
-            DB::beginTransaction();
-            DB::update('UPDATE design_template_jobs SET output_design = NULL, update_time = update_time WHERE id= ? ', [$row->id]);
-            DB::commit();
+                        DB::beginTransaction();
+                        DB::update('UPDATE design_template_jobs SET output_design = NULL, update_time = update_time WHERE id= ? ', [$row->id]);
+                        DB::commit();
 
-            if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
-              try {
-                $disk->deleteObject(array(
-                  'Bucket' => Config::get('constant.AWS_BUCKET'),
-                  'Key' =>   Config::get('constant.AWS_FOLDER_FOR_OUTPUT_FILE_EXPORT') . '/'. $filename
-                ));
-              } catch (Exception $e) {
-                (new ImageController())->logs("DeleteGeneratedDesignFiles Exception", $e);
-              }
-            } else {
-              $original_image_path = './..' . Config::get('constant.TEMP_DIRECTORY') . $filename;
-              if (($is_exist = ((new ImageController())->checkFileExist($original_image_path)) != 0)) {
-                unlink($original_image_path);
-              }
+                        if (Config::get('constant.STORAGE') === 'S3_BUCKET') {
+                            try {
+                                $disk->deleteObject([
+                                    'Bucket' => Config::get('constant.AWS_BUCKET'),
+                                    'Key' => Config::get('constant.AWS_FOLDER_FOR_OUTPUT_FILE_EXPORT').'/'.$filename,
+                                ]);
+                            } catch (Exception $e) {
+                                (new ImageController())->logs('DeleteGeneratedDesignFiles Exception', $e);
+                            }
+                        } else {
+                            $original_image_path = './..'.Config::get('constant.TEMP_DIRECTORY').$filename;
+                            if (($is_exist = ((new ImageController())->checkFileExist($original_image_path)) != 0)) {
+                                unlink($original_image_path);
+                            }
+                        }
+                    }
+                }
             }
-          }
+
+            $awsFilenameArray = [];
+            $objects = $disk->listObjectsV2(['Bucket' => Config::get('constant.AWS_BUCKET'), 'Prefix' => Config::get('constant.AWS_FOLDER_FOR_OUTPUT_FILE_EXPORT').'/']);
+            $files = $objects->getPath('Contents');
+            foreach ($files as $file) {
+                if ($file['Key'] !== Config::get('constant.AWS_FOLDER_FOR_OUTPUT_FILE_EXPORT').'/') {
+                    $timeStemp = strtotime($file['LastModified']->__toString());
+                    if ($timeStemp < strtotime('-1 day')) {
+                        $awsFilenameArray[] = $file['Key'];
+                        $disk->deleteObject([
+                            'Bucket' => Config::get('constant.AWS_BUCKET'),
+                            'Key' => $file['Key'],
+                        ]);
+                    }
+                }
+            }
+
+            $final_file_count = count($result) + count($awsFilenameArray);
+
+            $template = 'delete_generate_designs_report';
+            $date = date('Y-m-d');
+
+            if ($final_file_count <= 0) {
+                $subject = "Photoadking:No Designs deleted on date $date";
+                $message = 'There are no files that are older then 24 hours.';
+            } else {
+                $subject = 'Photoadking:'.$final_file_count." Designs deleted on date $date";
+                $message = 'Total '.$final_file_count.' Designs deleted from server which was generated by user before 24 hours.';
+            }
+
+            $message_body = [
+                'message' => $message,
+            ];
+
+            $data = ['template' => $template, 'subject' => $subject, 'message_body' => $message_body];
+
+            Mail::send($data['template'], $data, function ($message) use ($data) {
+                $message->to(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
+                $message->bcc(Config::get('constant.SUPER_ADMIN_EMAIL_ID'))->subject($data['subject']);
+            });
+
+            $result = true;
+        } catch (Exception $e) {
+            (new ImageController())->logs('DeleteGeneratedDesignFiles', $e);
+            $result = true;
         }
-      }
 
-
-
-      $awsFilenameArray = array();
-      $objects = $disk->listObjectsV2(array('Bucket' => Config::get('constant.AWS_BUCKET'), 'Prefix' => Config::get('constant.AWS_FOLDER_FOR_OUTPUT_FILE_EXPORT') . '/'));
-      $files = $objects->getPath('Contents');
-      foreach ($files as $file) {
-        if ($file['Key'] !== Config::get('constant.AWS_FOLDER_FOR_OUTPUT_FILE_EXPORT') . '/') {
-          $timeStemp = strtotime($file['LastModified']->__toString());
-          if ($timeStemp < strtotime('-1 day')) {
-            $awsFilenameArray[] = $file['Key'];
-            $disk->deleteObject(array(
-              'Bucket' => Config::get('constant.AWS_BUCKET'),
-              'Key' =>  $file['Key']
-            ));
-          }
-        }
-      }
-
-
-
-      $final_file_count = count($result) + count($awsFilenameArray);
-
-
-      $template = "delete_generate_designs_report";
-      $date = date("Y-m-d");
-
-      if ($final_file_count <= 0) {
-        $subject = "Photoadking:No Designs deleted on date $date";
-        $message = "There are no files that are older then 24 hours.";
-      } else {
-        $subject = "Photoadking:" . $final_file_count . " Designs deleted on date $date";
-        $message = "Total " . $final_file_count . " Designs deleted from server which was generated by user before 24 hours.";
-      }
-
-      $message_body = array(
-        "message" => $message
-      );
-
-      $data = array('template' => $template, 'subject' => $subject, 'message_body' => $message_body);
-
-      Mail::send($data['template'], $data, function ($message) use ($data) {
-        $message->to(Config::get('constant.ADMIN_EMAIL_ID'))->subject($data['subject']);
-        $message->bcc(Config::get('constant.SUPER_ADMIN_EMAIL_ID'))->subject($data['subject']);
-      });
-
-      $result = true;
-    }catch(Exception $e){
-      (new ImageController())->logs("DeleteGeneratedDesignFiles", $e);
-      $result = true;
+        return $result;
     }
-    return $result;
-  }
 }

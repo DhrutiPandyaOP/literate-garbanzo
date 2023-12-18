@@ -86,6 +86,6 @@ return [
     |
     */
 
-    'prefix' => env('REDIS_KEY','pak'),
+    'prefix' => env('REDIS_KEY', 'pak'),
 
 ];
