@@ -1,0 +1,23 @@
+{
+  "name": "Photo Ad King apidoc",
+  "version": "1.0.0",
+  "description": "apiDoc For Photo Ad King",
+  "title": "Photo Ad King",
+  "url" : "http://192.168.0.116/photoadking_testing/api/public/api/",
+  "header": {
+    "title": "Photo Ad King Admin",
+    "filename": "header.md"
+  },
+  "footer": {
+    "title": "Developed By : OptimumBrew",
+    "filename": "footer.md"
+  },
+  "order": [
+    "GetUser",
+    "PostUser"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  }
+}

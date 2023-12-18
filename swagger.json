@@ -1,0 +1,3188 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "API",
+        "description": "REST API",
+        "termsOfService": "terms",
+        "contact": {
+            "name": "call@me.com"
+        },
+        "license": {
+            "name": "proprietary"
+        },
+        "version": "1.0"
+    },
+    "host": "192.168.0.113",
+    "basePath": "/photoadking/api/public/api/",
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/addCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add category",
+                "operationId": "addCategory",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "name"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Frame"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/updateCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update category",
+                "operationId": "updateCategory",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "category_id",
+                                "name"
+                            ],
+                            "properties": {
+                                "category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Frame"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/deleteCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete category",
+                "operationId": "deleteCategory",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "category_id",
+                                "name"
+                            ],
+                            "properties": {
+                                "category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getAllCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all categories",
+                "operationId": "getAllCategory",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addSubCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add sub category",
+                "operationId": "addSubCategory",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give sub_category_name & category_id in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "category_id",
+                                "sub_category_name"
+                            ],
+                            "properties": {
+                                "category_id": {
+                                    "description": "- Admin ------------------------------------------------------",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "sub_category_name": {
+                                    "description": "- Admin ------------------------------------------------------",
+                                    "type": "string",
+                                    "example": "Business Card Frames"
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "file uploading",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/updateSubCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update sub category",
+                "operationId": "updateSubCategory",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give sub_category_name & category_id in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "sub_category_id",
+                                "sub_category_name"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "- Admin ------------------------------------------------------",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "sub_category_name": {
+                                    "description": "- Admin ------------------------------------------------------",
+                                    "type": "string",
+                                    "example": "Business Card Frames"
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "file uploading",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/deleteSubCategory": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete sub category",
+                "operationId": "deleteSubCategory",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getSubCategoryByCategoryIdForAdmin": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get sub category by category id",
+                "operationId": "getSubCategoryByCategoryIdForAdmin",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "page",
+                                "item_count",
+                                "category_id"
+                            ],
+                            "properties": {
+                                "page": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "item_count": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 15
+                                },
+                                "category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/searchSubCategoryByName": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Search sub category by name",
+                "operationId": "searchSubCategoryByName",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "category_id",
+                                "sub_category_name"
+                            ],
+                            "properties": {
+                                "category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "sub_category_name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Business Card"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addCatalog": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add catalog",
+                "operationId": "addCatalog",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give sub_category_id, name, is_featured & is_free in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "sub_category_id",
+                                "name",
+                                "is_featured",
+                                "is_free"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Business Card Frames"
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "catalog image",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/updateCatalog": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update catalog",
+                "operationId": "updateCatalog",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id, name, is_featured & is_free in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id",
+                                "name",
+                                "is_featured",
+                                "is_free"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Business Card Frames"
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "catalog image",
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/deleteCatalog": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete catalog",
+                "operationId": "deleteCatalog",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "catalog_id"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getCatalogBySubCategoryId": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all catalog by sub category id",
+                "operationId": "getCatalogBySubCategoryId",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/searchCatalogByName": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all catalog by sub category id",
+                "operationId": "searchCatalogByName",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id",
+                                "name"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Business Card"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addNormalImages": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add normal images",
+                "operationId": "addNormalImages",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file[]",
+                        "in": "formData",
+                        "description": "array of normal image",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/deleteContentById": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete content of catalog by id",
+                "operationId": "deleteContentById",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "content_id"
+                            ],
+                            "properties": {
+                                "content_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addFeaturedCatalogImages": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add featured catalog images",
+                "operationId": "addFeaturedCatalogImages",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id",
+                                "image_type"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "image_type": {
+                                    "description": "1=Background , 2=Frame",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "original_img",
+                        "in": "formData",
+                        "description": "array of normal image",
+                        "required": true,
+                        "type": "file"
+                    },
+                    {
+                        "name": "display_img",
+                        "in": "formData",
+                        "description": "array of normal image",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/updateFeaturedCatalogImages": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add featured catalog images",
+                "operationId": "updateFeaturedCatalogImages",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id",
+                                "image_type"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "image_type": {
+                                    "description": "1=Background , 2=Frame",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "original_img",
+                        "in": "formData",
+                        "description": "array of normal image",
+                        "required": true,
+                        "type": "file"
+                    },
+                    {
+                        "name": "display_img",
+                        "in": "formData",
+                        "description": "array of normal image",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getContentByCatalogIdForAdmin": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get content by catalog id",
+                "operationId": "getContentByCatalogIdForAdmin",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "catalog_id"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addTemplateImages": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add normal images",
+                "operationId": "addTemplateImages",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give is_replace in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "is_replace"
+                            ],
+                            "properties": {
+                                "is_replace": {
+                                    "description": "0=do not replace the existing file, 2=replace the existing file",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file[]",
+                        "in": "formData",
+                        "description": "array of template images",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addTemplate": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add template",
+                "operationId": "addTemplate",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id, json_data, is_portrait, is_featured, is_free & search_category in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id",
+                                "json_data",
+                                "is_featured",
+                                "is_free",
+                                "is_portrait",
+                                "search_category"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "json_data": {
+                                    "description": "card json",
+                                    "type": "object",
+                                    "example": []
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_portrait": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "search_category": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "business"
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "sample image of template",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/editTemplate": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Edit template",
+                "operationId": "editTemplate",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give content_id, json_data, is_portrait, is_featured, is_free & search_category in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "content_id",
+                                "json_data",
+                                "is_featured",
+                                "is_free",
+                                "is_portrait",
+                                "search_category"
+                            ],
+                            "properties": {
+                                "content_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "json_data": {
+                                    "description": "card json",
+                                    "type": "object",
+                                    "example": []
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_portrait": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "search_category": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "business"
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "sample image of template",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/addText": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add text josn",
+                "operationId": "addText",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id, json_data, is_featured & is_free in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id",
+                                "json_data",
+                                "is_featured",
+                                "is_free"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "json_data": {
+                                    "description": "card json",
+                                    "type": "object",
+                                    "example": []
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "sample image of text",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/editText": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Edit text",
+                "operationId": "editText",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give content_id, json_data, is_featured & is_free in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "content_id",
+                                "json_data",
+                                "is_featured",
+                                "is_free"
+                            ],
+                            "properties": {
+                                "content_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "json_data": {
+                                    "description": "card json",
+                                    "type": "object",
+                                    "example": []
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "sample image of text",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/add3DObject": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add 3D Object",
+                "operationId": "add3DObject",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give catalog_id, json_data (optional), content_type (6=3D text,7=3D shape), is_featured & is_free in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "catalog_id",
+                                "is_featured",
+                                "is_free",
+                                "content_type"
+                            ],
+                            "properties": {
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "json_data": {
+                                    "description": "card json",
+                                    "type": "object",
+                                    "example": []
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "content_type": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "sample image of 3D object",
+                        "required": true,
+                        "type": "file"
+                    },
+                    {
+                        "name": "content_file",
+                        "in": "formData",
+                        "description": "stl file of 3D shape. Required when content_type = 7",
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/edit3DObject": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Edit 3D Object",
+                "operationId": "edit3DObject",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give content_id, json_data (optional), content_type (6=3D text,7=3D shape), is_featured & is_free in json object",
+                        "required": true,
+                        "schema": {
+                            "required": [
+                                "content_id",
+                                "is_featured",
+                                "is_free",
+                                "content_type"
+                            ],
+                            "properties": {
+                                "content_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "json_data": {
+                                    "description": "text object json",
+                                    "type": "object",
+                                    "example": []
+                                },
+                                "is_featured": {
+                                    "description": "1=featured, 0=normal",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "is_free": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "content_type": {
+                                    "description": "1=free, 0=paid",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "sample image of 3D object",
+                        "type": "file"
+                    },
+                    {
+                        "name": "content_file",
+                        "in": "formData",
+                        "description": "stl file of 3D shape. Required when content_type = 7",
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getRedisKeys": {
+            "post": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Get redis keys",
+                "operationId": "getRedisKeys",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/deleteRedisKeys": {
+            "post": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Delete redis keys",
+                "operationId": "deleteRedisKeys",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "keys_list"
+                            ],
+                            "properties": {
+                                "keys_list": {
+                                    "description": "comma seperated sub_category_id",
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "key": {
+                                                "description": "redis key",
+                                                "type": "string",
+                                                "example": "pakt:getImagesByCatalogId57-1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getRedisKeyDetail": {
+            "post": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Get redis key detail",
+                "operationId": "getRedisKeyDetail",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "key"
+                            ],
+                            "properties": {
+                                "key": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "pakt:getSubCategoryByCategoryId9-1"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/clearRedisCache": {
+            "post": {
+                "tags": [
+                    "Redis"
+                ],
+                "summary": "Clear redis cache",
+                "operationId": "clearRedisCache",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/doLoginForAdmin": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Login api of admin",
+                "operationId": "doLoginForAdmin",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "email_id",
+                                "password"
+                            ],
+                            "properties": {
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "steave@grr.la"
+                                },
+                                "password": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "demo@123"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/doLoginForUser": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Login api of email user",
+                "operationId": "doLoginForUser",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "email_id",
+                                "password",
+                                "device_info"
+                            ],
+                            "properties": {
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "steave@grr.la"
+                                },
+                                "password": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "demo@123"
+                                },
+                                "device_info": {
+                                    "description": "All parameters in this object are optional",
+                                    "type": "object",
+                                    "example": {
+                                        "device_carrier": "",
+                                        "device_country_code": "IN",
+                                        "device_reg_id": "115a1a110",
+                                        "device_default_time_zone": "Asia/Calcutta",
+                                        "device_language": "en",
+                                        "device_latitude": "",
+                                        "device_library_version": "1",
+                                        "device_local_code": "NA",
+                                        "device_longitude": "",
+                                        "device_model_name": "Micromax AQ4501",
+                                        "device_os_version": "6.0.1",
+                                        "device_platform": "android",
+                                        "device_registration_date": "2016-05-06T15:58:11 +0530",
+                                        "device_resolution": "480x782",
+                                        "device_type": "phone",
+                                        "device_udid": "109111aa1121",
+                                        "device_vendor_name": "Micromax",
+                                        "project_package_name": "com.optimumbrew.projectsetup",
+                                        "device_application_version": "1.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/doLoginForSocialUser": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Login api of social user",
+                "operationId": "doLoginForSocialUser",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "first_name",
+                                "email_id",
+                                "social_uid",
+                                "signup_type"
+                            ],
+                            "properties": {
+                                "first_name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Steave"
+                                },
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "steave@grr.la"
+                                },
+                                "social_uid": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "12346566456"
+                                },
+                                "signup_type": {
+                                    "description": "1=email, 2=facebook, 3=google",
+                                    "type": "integer",
+                                    "example": 2
+                                },
+                                "device_info": {
+                                    "description": "All parameters in this object are optional",
+                                    "type": "object",
+                                    "example": {
+                                        "device_carrier": "",
+                                        "device_country_code": "IN",
+                                        "device_reg_id": "115a1a110",
+                                        "device_default_time_zone": "Asia/Calcutta",
+                                        "device_language": "en",
+                                        "device_latitude": "",
+                                        "device_library_version": "1",
+                                        "device_local_code": "NA",
+                                        "device_longitude": "",
+                                        "device_model_name": "Micromax AQ4501",
+                                        "device_os_version": "6.0.1",
+                                        "device_platform": "android",
+                                        "device_registration_date": "2016-05-06T15:58:11 +0530",
+                                        "device_resolution": "480x782",
+                                        "device_type": "phone",
+                                        "device_udid": "109111aa1121",
+                                        "device_vendor_name": "Micromax",
+                                        "project_package_name": "com.optimumbrew.projectsetup",
+                                        "device_application_version": "1.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/checkSocialUserExist": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Check social user is already exist or not",
+                "operationId": "checkSocialUserExist",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "social_uid",
+                                "signup_type",
+                                "device_info"
+                            ],
+                            "properties": {
+                                "social_uid": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "12346566456"
+                                },
+                                "signup_type": {
+                                    "description": "1=email, 2=facebook, 3=google",
+                                    "type": "integer",
+                                    "example": 2
+                                },
+                                "device_info": {
+                                    "description": "All parameters in this object are optional",
+                                    "type": "object",
+                                    "example": {
+                                        "device_carrier": "",
+                                        "device_country_code": "IN",
+                                        "device_reg_id": "115a1a110",
+                                        "device_default_time_zone": "Asia/Calcutta",
+                                        "device_language": "en",
+                                        "device_latitude": "",
+                                        "device_library_version": "1",
+                                        "device_local_code": "NA",
+                                        "device_longitude": "",
+                                        "device_model_name": "Micromax AQ4501",
+                                        "device_os_version": "6.0.1",
+                                        "device_platform": "android",
+                                        "device_registration_date": "2016-05-06T15:58:11 +0530",
+                                        "device_resolution": "480x782",
+                                        "device_type": "phone",
+                                        "device_udid": "109111aa1121",
+                                        "device_vendor_name": "Micromax",
+                                        "project_package_name": "com.optimumbrew.projectsetup",
+                                        "device_application_version": "1.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "Exception"
+                    },
+                    "421": {
+                        "description": "User does not exist"
+                    }
+                }
+            }
+        },
+        "/forgotPassword": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Send otp to forgot password",
+                "operationId": "forgotPassword",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "email_id"
+                            ],
+                            "properties": {
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "steave@grr.la"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/verifyResetPasswordLink": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Verify link of reset password",
+                "operationId": "verifyResetPasswordLink",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "email_id",
+                                "token"
+                            ],
+                            "properties": {
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "steave@grr.la"
+                                },
+                                "token": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "djfjbjdbgjdghjbdjfbkbcjfuhudbjsbcjsbd"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/resetPassword": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Reset password",
+                "operationId": "resetPassword",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "email_id",
+                                "token",
+                                "new_password"
+                            ],
+                            "properties": {
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "robert@grr.la"
+                                },
+                                "token": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "djfjbjdbgjdghjbdjfbkbcjfuhudbjsbcjsbd"
+                                },
+                                "new_password": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "demo@1234"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/doLogout": {
+            "post": {
+                "tags": [
+                    "Common For All"
+                ],
+                "summary": "Logout",
+                "operationId": "doLogout",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/changePassword": {
+            "post": {
+                "tags": [
+                    "Common For All"
+                ],
+                "summary": "Set new password",
+                "operationId": "changePassword",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "current_password",
+                                "new_password"
+                            ],
+                            "properties": {
+                                "current_password": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "demo@123"
+                                },
+                                "new_password": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "demo@1234"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/registerUserDeviceByDeviceUdid": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "registerUserDeviceByDeviceUdid",
+                "operationId": "registerUserDeviceByDeviceUdid",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_data",
+                        "in": "body",
+                        "schema": {
+                            "properties": {
+                                "device_reg_id": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_udid": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_platform": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_model_name": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_vendor_name": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_os_version": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_resolution": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_carrier": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_country_code": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_language": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_local_code": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_default_time_zone": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_application_version": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_type": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_registration_date": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                },
+                                "device_library_version": {
+                                    "description": "- Users ------------------------------------------------------",
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/userSignUp": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "userSignUp",
+                "operationId": "userSignUp",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "first_name",
+                                "email_id",
+                                "password",
+                                "signup_type"
+                            ],
+                            "properties": {
+                                "first_name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Steave"
+                                },
+                                "email_id": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "steave@grr.la"
+                                },
+                                "password": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "demo@123"
+                                },
+                                "signup_type": {
+                                    "description": "1=email, 2=facebook, 3=google",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "device_info": {
+                                    "description": "All parameters in this object are optional",
+                                    "type": "object",
+                                    "example": {
+                                        "device_carrier": "",
+                                        "device_country_code": "IN",
+                                        "device_reg_id": "115a1a110",
+                                        "device_default_time_zone": "Asia/Calcutta",
+                                        "device_language": "en",
+                                        "device_latitude": "",
+                                        "device_library_version": "1",
+                                        "device_local_code": "NA",
+                                        "device_longitude": "",
+                                        "device_model_name": "Micromax AQ4501",
+                                        "device_os_version": "6.0.1",
+                                        "device_platform": "android",
+                                        "device_registration_date": "2016-05-06T15:58:11 +0530",
+                                        "device_resolution": "480x782",
+                                        "device_type": "phone",
+                                        "device_udid": "109111aa1121",
+                                        "device_vendor_name": "Micromax",
+                                        "project_package_name": "com.optimumbrew.projectsetup",
+                                        "device_application_version": "1.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/resendVerificationLink": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "resendVerificationLink",
+                "operationId": "resendVerificationLink",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "user_registration_temp_id"
+                            ],
+                            "properties": {
+                                "user_registration_temp_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/verifyUser": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "verify user by registration link",
+                "operationId": "verifyUser",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "user_registration_temp_id",
+                                "token"
+                            ],
+                            "properties": {
+                                "user_registration_temp_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "token": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "dfjdfhjdjfjdfbjdfbvhjdbfvjzxcxcxvx"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/updateUserProfile": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user profile",
+                "operationId": "updateUserProfile",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_data",
+                        "in": "formData",
+                        "description": "Give first_name in json object",
+                        "schema": {
+                            "properties": {
+                                "first_name": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Elsa"
+                                }
+                            }
+                        },
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "user profile",
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getUserProfile": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user profile",
+                "operationId": "getUserProfile",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/uploadImageByUser": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Upload image by user",
+                "operationId": "uploadImageByUser",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "upload image",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getDashboardData": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get featured cards & sub categories list by list sub category id",
+                "operationId": "getDashboardData",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id_list"
+                            ],
+                            "properties": {
+                                "sub_category_id_list": {
+                                    "description": "comma seperated sub_category_id",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getFeaturedCatalogsBySubCategoryId": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get featured catalogs by sub category id",
+                "operationId": "getFeaturedCatalogsBySubCategoryId",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id",
+                                "item_count"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "item_count": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 10
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/searchTemplateBySubCategoryId": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Search template by sub category id",
+                "operationId": "searchTemplateBySubCategoryId",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id",
+                                "search_category",
+                                "page",
+                                "item_count"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "search_category": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Art & Design"
+                                },
+                                "page": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "item_count": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 10
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/searchSticker": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Search stickers by catalog name",
+                "operationId": "searchSticker",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "search_query",
+                                "page",
+                                "item_count"
+                            ],
+                            "properties": {
+                                "search_query": {
+                                    "description": "",
+                                    "type": "string",
+                                    "example": "Art & Design"
+                                },
+                                "page": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "item_count": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 10
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getTemplateByCatalogId": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get templates by catalog id",
+                "operationId": "getTemplateByCatalogId",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "sub_category_id",
+                                "catalog_id",
+                                "page",
+                                "item_count"
+                            ],
+                            "properties": {
+                                "sub_category_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "catalog_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "page": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "item_count": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 10
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        },
+        "/getContentDetailById": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get content detail by id",
+                "operationId": "getContentDetailById",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "description": "access token",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request_body",
+                        "in": "body",
+                        "schema": {
+                            "required": [
+                                "content_id",
+                                "content_type"
+                            ],
+                            "properties": {
+                                "content_id": {
+                                    "description": "",
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "content_type": {
+                                    "description": "1=image(sticker, frame, background),2=video,3=audio,4=template,5=text_json,6=3D_text_json,7=3D_shape",
+                                    "type": "integer",
+                                    "example": 4
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "201": {
+                        "description": "error"
+                    }
+                },
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {},
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
